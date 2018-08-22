@@ -1,8 +1,14 @@
 defmodule BankLogicTest do
-  use ExUnit.Case
-  doctest BankLogic
+  use ExUnit.Case, async: true
 
-  test "greets the world" do
-    assert BankLogic.hello() == :world
+  setup do
+    Ecto.Adapters.SQL.Sandbox.checkout(BankLogic.Repo)
+    :ok
+  end
+
+  describe ".all" do
+    test "returns empty list when there are no accounts" do
+      assert BankLogic.all() == []
+    end
   end
 end
