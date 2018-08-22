@@ -1,6 +1,6 @@
 defmodule BankLogic do
   @moduledoc """
-  Documentation for BankLogic.
+  Public interface to access Bank Logic
   """
 
   @doc """
@@ -8,11 +8,26 @@ defmodule BankLogic do
 
   ## Examples
 
-      iex> BankLogic.hello()
+      iex> BankLogic.all()
       :world
 
   """
-  def hello do
-    :world
+  def all do
+    [%{email: "test@test.com", amount: 15.5}]
+  end
+
+  def open do
+  end
+
+  def info do
+  end
+
+  def report do
+  end
+
+  def transfer do
+  end
+
+  def cash_out do
   end
 end

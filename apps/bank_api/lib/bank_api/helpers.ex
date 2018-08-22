@@ -1,5 +1,8 @@
 defmodule BankApi.Helpers do
-  @moduledoc false
+  @moduledoc """
+    This module is automatically imported for all controllers to provide
+    a custom way to send errors to the client
+  """
 
   import Plug.Conn, only: [put_status: 2]
   import Phoenix.Controller, only: [render: 3, put_view: 2]

@@ -1,5 +1,6 @@
 defmodule BankApi.Application do
   @moduledoc false
+
   use Application
 
   # See https://hexdocs.pm/elixir/Application.html
@@ -10,7 +11,7 @@ defmodule BankApi.Application do
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
-      supervisor(BankApiWeb.Endpoint, []),
+      supervisor(BankApiWeb.Endpoint, [])
       # Start your own worker by calling: BankApi.Worker.start_link(arg1, arg2, arg3)
       # worker(BankApi.Worker, [arg1, arg2, arg3]),
     ]

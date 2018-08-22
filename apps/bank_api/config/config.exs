@@ -14,8 +14,7 @@ config :bank_api, BankApiWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "sK+DDZhkMYUL7RfzB14h9gLCYWa2mZ2H82TPieNR58sw3ieA2q4JKUfkvw/67l4D",
   render_errors: [view: BankApiWeb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: BankApi.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: BankApi.PubSub, adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -24,4 +23,4 @@ config :logger, :console,
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

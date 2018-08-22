@@ -1,4 +1,8 @@
 defmodule BankApiWeb.ErrorView do
+  @moduledoc """
+  This module was changed to show custom errors
+  """
+
   use BankApiWeb, :view
 
   def render("404.json", assigns) do
