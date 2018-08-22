@@ -4,6 +4,7 @@ This is an Elixir Umbrella APP that provides Bank as Service.
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
+  * Make sure to change your PostgreSQL user:pass at `apps/bank_logic/config`
   * Create your database with `mix ecto.setup`
   * Run tests with `mix test`
   * Start Phoenix endpoint with `mix phx.server`
