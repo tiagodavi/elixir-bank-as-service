@@ -1,0 +1,6 @@
+{
+  "skip_files": [
+    "lib/bank_logic/application.ex",
+    "lib/bank_logic/repo.ex"
+  ]
+}

@@ -7,7 +7,7 @@ defmodule Bank.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
-      test_coverage: [tool: Coverex.Task]
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 
@@ -20,7 +20,7 @@ defmodule Bank.MixProject do
     [
       {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
       {:distillery, "~> 2.0"},
-      {:coverex, "~> 1.4.10", only: :test}
+      {:excoveralls, "~> 0.9"}
     ]
   end
 
@@ -28,7 +28,7 @@ defmodule Bank.MixProject do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run apps/bank_logic/priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test --cover"]
+      test: ["ecto.create --quiet", "ecto.migrate --quiet", "coveralls -u"]
     ]
   end
 end

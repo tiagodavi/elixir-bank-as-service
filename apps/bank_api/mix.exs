@@ -14,7 +14,7 @@ defmodule BankApi.Mixfile do
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
       deps: deps(),
-      test_coverage: [output: "../../cover"]
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 

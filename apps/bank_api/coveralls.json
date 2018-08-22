@@ -1,0 +1,16 @@
+{
+  "skip_files": [
+    "lib/bank_api/application.ex",
+    "lib/bank_api/helpers.ex",
+    "lib/bank_api_web/endpoint.ex",
+    "lib/bank_api_web/gettext.ex",
+    "lib/bank_api_web/router.ex",
+    "lib/bank_api_web/channels/user_socket.ex",
+    "lib/bank_api_web.ex",
+    "lib/bank_api_web/controllers/catch_all_controller.ex",
+    "lib/bank_api_web/views/error_helpers.ex",
+    "lib/bank_api_web/views/error_view.ex",
+    "test/support/channel_case.ex",
+    "test/support/conn_case.ex"
+  ]
+}
