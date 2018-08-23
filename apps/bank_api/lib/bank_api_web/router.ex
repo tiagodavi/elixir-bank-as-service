@@ -17,9 +17,6 @@ defmodule BankApiWeb.Router do
   end
 
   scope "/", BankApiWeb do
-    get("/*path", CatchAllController, :index)
-    post("/*path", CatchAllController, :index)
-    put("/*path", CatchAllController, :index)
-    delete("/*path", CatchAllController, :index)
+    match(:*, "/*path", CatchAllController, :index)
   end
 end
