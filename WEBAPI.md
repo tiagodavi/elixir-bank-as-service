@@ -34,11 +34,11 @@
      {"errors":{"message": "msg"}}
     ```
 
-**Open Account**
+**[Open Account]**
 
   * **URL**
 
-  /api/open/:email - Open a new account
+    /api/open/:email - Open a new account
 
   * **Method:**
 
@@ -63,11 +63,11 @@
 
     POST -> `/api/open/email01@gmail.com`
 
-**Transfer Money**
+**[Transfer Money]**
 
   * **URL**
 
-  /api/transfer/:source/:destination/:amount - Transfer money from source to destination
+    /api/transfer/:source/:destination/:amount - Transfer money from source to destination
 
   * **Method:**
 
