@@ -18,7 +18,7 @@ defmodule BankApiWeb.Plugs.Auth do
     if valid_token?(token) do
       conn
     else
-      data = %{"errors" => %{"message" => "authentication required"}}
+      data = %{"errors" => "authentication required"}
 
       conn
       |> put_status(401)

@@ -1,7 +1,7 @@
 defmodule BankApiWeb.BankingControllerTest do
   use BankApiWeb.ConnCase, async: true
 
-  @authorization_error %{"errors" => %{"message" => "authentication required"}}
+  @authorization_error %{"errors" => "authentication required"}
 
   setup %{conn: conn} do
     Ecto.Adapters.SQL.Sandbox.checkout(BankLogic.Repo)
