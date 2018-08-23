@@ -5,12 +5,10 @@ defmodule BankApiWeb.ErrorViewTest do
   import Phoenix.View
 
   test "renders 404.json" do
-    assert render(BankApiWeb.ErrorView, "404.json", []) ==
-             %{errors: "Endpoint not found!"}
+    assert render(BankApiWeb.ErrorView, "404.json", []) == %{errors: "Endpoint not found!"}
   end
 
   test "renders 500.json" do
-    assert render(BankApiWeb.ErrorView, "500.json", []) ==
-             %{errors: "Internal Server Error!"}
+    assert render(BankApiWeb.ErrorView, "500.json", []) == %{errors: "Internal Server Error!"}
   end
 end

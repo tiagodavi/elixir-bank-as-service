@@ -23,6 +23,7 @@ defmodule BankApiWeb.BankingView do
 
   def render("transaction.json", %{transaction: transaction}) do
     data = %{
+      operation: transaction.operation,
       source: transaction.source,
       amount: transaction.amount
     }

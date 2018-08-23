@@ -1,6 +1,9 @@
 defmodule BankApiWeb.BankingControllerTest do
   use BankApiWeb.ConnCase, async: true
 
+  @transfer BankLogic.Schemas.Transaction.operations().transfer
+  @cash_out BankLogic.Schemas.Transaction.operations().cash_out
+
   @authorization_error %{"errors" => "authentication required"}
 
   setup %{conn: conn} do
@@ -155,7 +158,8 @@ defmodule BankApiWeb.BankingControllerTest do
       assert response == %{
                "amount" => 100.0,
                "destination" => "email02@gmail.com",
-               "source" => "email01@gmail.com"
+               "source" => "email01@gmail.com",
+               "operation" => @transfer
              }
     end
   end
@@ -214,7 +218,8 @@ defmodule BankApiWeb.BankingControllerTest do
 
       assert response == %{
                "amount" => 100.0,
-               "source" => "email01@gmail.com"
+               "source" => "email01@gmail.com",
+               "operation" => @cash_out
              }
     end
   end

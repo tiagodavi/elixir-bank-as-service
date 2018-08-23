@@ -1,6 +1,9 @@
 defmodule BankLogicTest do
   use ExUnit.Case, async: true
 
+  @transfer BankLogic.Schemas.Transaction.operations().transfer
+  @cash_out BankLogic.Schemas.Transaction.operations().cash_out
+
   alias BankLogic.Schemas.{Account}
 
   setup do
@@ -79,7 +82,8 @@ defmodule BankLogicTest do
       data = %{
         source: "email01@gmail.com",
         destination: "email02@gmail.com",
-        amount: 75
+        amount: 75,
+        operation: @transfer
       }
 
       assert {:ok, result} = BankLogic.transfer(data)
@@ -116,7 +120,8 @@ defmodule BankLogicTest do
 
       data = %{
         source: "email01@gmail.com",
-        amount: 100
+        amount: 100,
+        operation: @cash_out
       }
 
       assert {:ok, result} = BankLogic.cash_out(data)

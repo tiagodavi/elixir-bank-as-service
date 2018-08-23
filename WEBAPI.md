@@ -78,7 +78,7 @@
     * **Code:** 200 OK <br />
       **Content:**
       ```
-       {"source": "email01@gmail.com",  "destination": "email02@gmail.com", "amount": 178.57}      
+       {"source": "email01@gmail.com",  "destination": "email02@gmail.com", "amount": 178.57, "operation": 1}      
       ```
 
   * **Error Response:**
@@ -108,7 +108,7 @@
     * **Code:** 200 OK <br />
       **Content:**
       ```
-       {"source": "email01@gmail.com", "amount": 178.57}      
+       {"source": "email01@gmail.com", "amount": 178.57, "operation": 2}      
       ```
 
   * **Error Response:**
@@ -144,19 +144,23 @@
                  {
                      "source": "email01@gmail.com",
                      "destination": "email02@gmail.com",
-                     "amount": 75
+                     "amount": 75,
+                     "operation": 1
                  },
                  {
                      "source": "email01@gmail.com",
-                     "amount": 75
+                     "amount": 75,
+                     "operation": 2
                  },
                  {
                      "source": "email01@gmail.com",
-                     "amount": 800
+                     "amount": 800,
+                     "operation": 2
                  },
                  {
                      "source": "email01@gmail.com",
-                     "amount": 50
+                     "amount": 50,
+                     "operation": 2
                  }
              ]
          }

@@ -9,7 +9,7 @@ To start your Phoenix server:
   * Run tests with `mix test`
   * Start Phoenix endpoint with `mix phx.server`
   * Open [`WEBAPI.md`](https://github.com/tiagodavi/elixir-bank-as-service/blob/master/WEBAPI.md) to see the api documentation
-  * Online on: https://funny-courageous-easternnewt.gigalixirapp.com
+  * Online on: https://spherical-humble-blueandgoldmackaw.gigalixirapp.com/api
 
   Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 

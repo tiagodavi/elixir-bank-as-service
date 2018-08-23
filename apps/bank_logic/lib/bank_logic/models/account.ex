@@ -35,7 +35,7 @@ defmodule BankLogic.Models.Account do
         on: d.id == t.destination_id,
         where: t.inserted_at >= ^start_date,
         where: t.inserted_at <= ^end_date,
-        select: %{amount: t.amount, source: s.email, destination: d.email}
+        select: %{amount: t.amount, source: s.email, destination: d.email, operation: t.operation}
       )
 
     transactions = Repo.all(query)
@@ -85,8 +85,12 @@ defmodule BankLogic.Models.Account do
       |> Ecto.Multi.insert(:transaction, build_transaction(source, amount))
       |> Repo.transaction()
       |> case do
-        {:ok, _} -> {:ok, %{source: source.email, amount: amount}}
-        _ -> {:error, "something has been wrong. please try again."}
+        {:ok, _} ->
+          {:ok,
+           %{source: source.email, amount: amount, operation: Transaction.operations().cash_out}}
+
+        _ ->
+          {:error, "something has been wrong. please try again."}
       end
     else
       {:error, "there's no enough money"}
@@ -118,8 +122,17 @@ defmodule BankLogic.Models.Account do
       |> Ecto.Multi.insert(:transaction, build_transaction(source, destination, amount))
       |> Repo.transaction()
       |> case do
-        {:ok, _} -> {:ok, %{source: source.email, destination: destination.email, amount: amount}}
-        _ -> {:error, "something has been wrong. please try again."}
+        {:ok, _} ->
+          {:ok,
+           %{
+             source: source.email,
+             destination: destination.email,
+             amount: amount,
+             operation: Transaction.operations().transfer
+           }}
+
+        _ ->
+          {:error, "something has been wrong. please try again."}
       end
     else
       {:error, "there's no enough money"}
