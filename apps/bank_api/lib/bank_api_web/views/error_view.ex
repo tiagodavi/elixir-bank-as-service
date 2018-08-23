@@ -16,10 +16,10 @@ defmodule BankApiWeb.ErrorView do
   defp handle_assign_error(message, assigns) do
     case has_assign_error_key?(assigns) do
       {:ok, errors} ->
-        %{errors: %{message: errors}}
+        %{errors: errors}
 
       _ ->
-        %{errors: %{message: message}}
+        %{errors: message}
     end
   end
 

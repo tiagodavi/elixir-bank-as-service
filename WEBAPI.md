@@ -31,7 +31,7 @@
   * **Code:** 422 Bad Request <br />
     **Content:**
     ```
-     {"errors":{"message": "msg"}}
+     {"errors": "msg"}
     ```
 
 **[Open Account]**
@@ -57,7 +57,7 @@
     * **Code:** 422 Bad Request <br />
       **Content:**
       ```
-       {"errors":{"message": "msg"}}
+        {"errors": "msg"}
       ```
   * **Example Usage:**
 
@@ -86,7 +86,7 @@
     * **Code:** 422 Bad Request <br />
       **Content:**
       ```
-       {"errors":{"message": "msg"}}
+        {"errors": "msg"}
       ```
   * **Example Usage:**
 
@@ -116,7 +116,7 @@
     * **Code:** 422 Bad Request <br />
       **Content:**
       ```
-       {"errors":{"message": "msg"}}
+        {"errors": "msg"}
       ```
   * **Example Usage:**
 
@@ -168,7 +168,7 @@
     * **Code:** 422 Bad Request <br />
       **Content:**
       ```
-       {"errors":{"message": "msg"}}
+        {"errors": "msg"}
       ```
   * **Example Usage:**
 

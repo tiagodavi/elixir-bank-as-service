@@ -107,7 +107,7 @@ defmodule BankApiWeb.BankingControllerTest do
 
       response = json_response(conn, 422)["errors"]
 
-      assert response == %{"message" => "one of the accounts does not exist"}
+      assert response == "one of the accounts does not exist"
     end
 
     test "accounts are equals", %{conn: conn} do
@@ -120,7 +120,7 @@ defmodule BankApiWeb.BankingControllerTest do
 
       response = json_response(conn, 422)["errors"]
 
-      assert response == %{"message" => %{"accounts" => ["source and destination are equals"]}}
+      assert response == %{"accounts" => ["source and destination are equals"]}
     end
 
     test "there's no enough money", %{conn: conn} do
@@ -136,7 +136,7 @@ defmodule BankApiWeb.BankingControllerTest do
 
       response = json_response(conn, 422)["errors"]
 
-      assert response == %{"message" => "there's no enough money"}
+      assert response == "there's no enough money"
     end
 
     test "transfers money", %{conn: conn} do
@@ -182,7 +182,7 @@ defmodule BankApiWeb.BankingControllerTest do
         |> put(path)
 
       response = json_response(conn, 422)["errors"]
-      assert response == %{"message" => "account does not exist"}
+      assert response == "account does not exist"
     end
 
     test "there's no enough money", %{conn: conn} do
@@ -197,7 +197,7 @@ defmodule BankApiWeb.BankingControllerTest do
 
       response = json_response(conn, 422)["errors"]
 
-      assert response == %{"message" => "there's no enough money"}
+      assert response == "there's no enough money"
     end
 
     test "cashs out", %{conn: conn} do
