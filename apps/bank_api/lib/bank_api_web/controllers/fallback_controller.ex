@@ -5,7 +5,7 @@ defmodule BankApiWeb.FallBackController do
   """
   use BankApiWeb, :controller
 
-  def call(conn, {:error, msg}) do
-    send_error(conn, 422, msg)
+  def call(conn, {:error, reason}) do
+    send_error(conn, 422, reason)
   end
 end

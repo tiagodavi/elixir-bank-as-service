@@ -4,7 +4,7 @@ defmodule BankLogic.Schemas.Transaction do
   """
 
   @operations %{
-    send_money: 1,
+    transfer: 1,
     cash_out: 2
   }
 

@@ -33,6 +33,16 @@ defmodule BankLogic.Schemas.Account do
     |> validate_source_destination
   end
 
+  def cash_out_changeset(attrs) do
+    data = %{}
+    types = %{source: :string, amount: :float}
+
+    {data, types}
+    |> cast(attrs, Map.keys(types))
+    |> validate_required(Map.keys(types))
+    |> validate_format(:source, ~r/@/)
+  end
+
   defp add_default_amount(changeset) do
     changeset
     |> put_change(:amount, 1_000.00)

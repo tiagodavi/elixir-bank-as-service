@@ -24,6 +24,34 @@ defmodule BankLogic.Models.Account do
   end
 
   def cash_out(attrs) do
+    changeset = Account.cash_out_changeset(attrs)
+
+    if changeset.valid? do
+      source = get_by(email: get_change(changeset, :source))
+
+      if source do
+        try_cash_out(source, get_change(changeset, :amount))
+      else
+        {:error, "account does not exist"}
+      end
+    else
+      {:error, changeset}
+    end
+  end
+
+  defp try_cash_out(source, amount) do
+    if source.amount >= amount do
+      Ecto.Multi.new()
+      |> Ecto.Multi.update(:source, change(source, amount: source.amount - amount))
+      |> Ecto.Multi.insert(:transaction, build_transaction(source, amount))
+      |> Repo.transaction()
+      |> case do
+        {:ok, _} -> {:ok, %{source: source.email, amount: amount}}
+        _ -> {:error, "something has been wrong. please try again."}
+      end
+    else
+      {:error, "there's no enough money"}
+    end
   end
 
   def transfer(attrs) do
@@ -51,11 +79,8 @@ defmodule BankLogic.Models.Account do
       |> Ecto.Multi.insert(:transaction, build_transaction(source, destination, amount))
       |> Repo.transaction()
       |> case do
-        {:ok, result} ->
-          {:ok, %{source: source.email, destination: destination.email, amount: amount}}
-
-        _ ->
-          {:error, "something has been wrong. please try again."}
+        {:ok, _} -> {:ok, %{source: source.email, destination: destination.email, amount: amount}}
+        _ -> {:error, "something has been wrong. please try again."}
       end
     else
       {:error, "there's no enough money"}
@@ -64,7 +89,7 @@ defmodule BankLogic.Models.Account do
 
   defp build_transaction(source, destination, amount) do
     %Transaction{
-      operation: Transaction.operations().send_money,
+      operation: Transaction.operations().transfer,
       source_id: source.id,
       destination_id: destination.id,
       amount: amount

@@ -38,17 +38,8 @@ defmodule BankApiWeb.BankingController do
   end
 
   def cash_out(conn, params) do
-    {amount, _} = Float.parse(params["amount"])
-
-    case BankLogic.cash_out(
-           params["email"],
-           amount
-         ) do
-      {:ok, amount} ->
-        render(conn, "transfer.json", %{amount: amount})
-
-      {:error, reason} ->
-        render(conn, "error.json", %{error: reason})
+    with {:ok, transaction} <- BankLogic.cash_out(params) do
+      render(conn, "transaction.json", %{transaction: transaction})
     end
   end
 end

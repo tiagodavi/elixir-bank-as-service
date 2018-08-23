@@ -18,10 +18,15 @@ defmodule BankApiWeb.BankingView do
   end
 
   def render("transaction.json", %{transaction: transaction}) do
-    %{
+    data = %{
       source: transaction.source,
-      destination: transaction.destination,
       amount: transaction.amount
     }
+
+    if transaction[:destination] do
+      Map.put_new(data, :destination, transaction.destination)
+    else
+      data
+    end
   end
 end

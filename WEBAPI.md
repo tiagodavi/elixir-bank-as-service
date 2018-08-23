@@ -67,7 +67,7 @@
 
   * **URL**
 
-    /api/transfer/:source/:destination/:amount - Transfer money from source to destination
+    /api/transfer/:source/:destination/:amount - Transfer amount from source to destination
 
   * **Method:**
 
@@ -91,6 +91,36 @@
   * **Example Usage:**
 
     PUT-> `/api/transfer/email01@gmail.com/email02@gmail.com/178.57`
+
+
+**[Cash Out Money]**
+
+  * **URL**
+
+    /api/cash-out/:source/:amount - Cash out amount from source
+
+  * **Method:**
+
+      `PUT`
+
+  * **Success Response:**
+
+    * **Code:** 200 OK <br />
+      **Content:**
+      ```
+       {"source": "email01@gmail.com", "amount": 178.57}      
+      ```
+
+  * **Error Response:**
+
+    * **Code:** 422 Bad Request <br />
+      **Content:**
+      ```
+       {"errors":{"message": "msg"}}
+      ```
+  * **Example Usage:**
+
+    PUT-> `/api/cash-out/email01@gmail.com/178.57`
 
 #### API's
 - /api/banking - Return all accounts

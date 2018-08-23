@@ -84,4 +84,41 @@ defmodule BankLogicTest do
       assert result == data
     end
   end
+
+  describe ".cash_out" do
+    test "error when account does not exist" do
+      data = %{
+        source: "email01@gmail.com",
+        amount: 10
+      }
+
+      assert {:error, msg} = BankLogic.cash_out(data)
+
+      assert msg == "account does not exist"
+    end
+
+    test "error when there's no enough money" do
+      BankLogic.open(%{email: "email01@gmail.com"})
+
+      data = %{
+        source: "email01@gmail.com",
+        amount: 1001
+      }
+
+      assert {:error, msg} = BankLogic.cash_out(data)
+      assert msg == "there's no enough money"
+    end
+
+    test "cashs out with success" do
+      BankLogic.open(%{email: "email01@gmail.com"})
+
+      data = %{
+        source: "email01@gmail.com",
+        amount: 100
+      }
+
+      assert {:ok, result} = BankLogic.cash_out(data)
+      assert result == data
+    end
+  end
 end

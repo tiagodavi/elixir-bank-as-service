@@ -159,4 +159,63 @@ defmodule BankApiWeb.BankingControllerTest do
              }
     end
   end
+
+  describe "/api/cash_out/:source/:amount" do
+    test "authorization required", %{conn: conn} do
+      path = banking_path(conn, :cash_out, "email01@gmail.com", 10)
+
+      conn =
+        conn
+        |> put(path)
+
+      response = json_response(conn, 401)
+
+      assert response == @authorization_error
+    end
+
+    test "account does not exist", %{conn: conn} do
+      path = banking_path(conn, :cash_out, "email01@gmail.com", 10)
+
+      conn =
+        conn
+        |> authenticate
+        |> put(path)
+
+      response = json_response(conn, 422)["errors"]
+      assert response == %{"message" => "account does not exist"}
+    end
+
+    test "there's no enough money", %{conn: conn} do
+      BankLogic.open(%{email: "email01@gmail.com"})
+
+      path = banking_path(conn, :cash_out, "email01@gmail.com", 1001)
+
+      conn =
+        conn
+        |> authenticate
+        |> put(path)
+
+      response = json_response(conn, 422)["errors"]
+
+      assert response == %{"message" => "there's no enough money"}
+    end
+
+    test "cashs out", %{conn: conn} do
+      BankLogic.open(%{email: "email01@gmail.com"})
+
+      path = banking_path(conn, :cash_out, "email01@gmail.com", 100)
+
+      conn =
+        conn
+        |> authenticate
+        |> put(path)
+
+      response = json_response(conn, 200)
+
+      assert response == %{
+               "amount" => 100.0,
+               "source" => "email01@gmail.com"
+             }
+    end
+  end
 end
