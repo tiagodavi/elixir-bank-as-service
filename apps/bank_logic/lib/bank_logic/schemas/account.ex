@@ -21,8 +21,30 @@ defmodule BankLogic.Schemas.Account do
     |> add_default_amount
   end
 
+  def transfer_changeset(attrs) do
+    data = %{}
+    types = %{source: :string, destination: :string, amount: :float}
+
+    {data, types}
+    |> cast(attrs, Map.keys(types))
+    |> validate_required(Map.keys(types))
+    |> validate_format(:source, ~r/@/)
+    |> validate_format(:destination, ~r/@/)
+    |> validate_source_destination
+  end
+
   defp add_default_amount(changeset) do
     changeset
     |> put_change(:amount, 1_000.00)
+  end
+
+  defp validate_source_destination(changeset) do
+    source = get_change(changeset, :source)
+    destination = get_change(changeset, :destination)
+
+    case source do
+      ^destination -> add_error(changeset, :accounts, "source and destination are equals")
+      _ -> changeset
+    end
   end
 end

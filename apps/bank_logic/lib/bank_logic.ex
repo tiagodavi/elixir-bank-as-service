@@ -13,9 +13,6 @@ defmodule BankLogic do
     Account.create_account(attrs)
   end
 
-  def info do
-  end
-
   def report do
   end
 

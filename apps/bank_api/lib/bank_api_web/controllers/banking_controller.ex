@@ -32,18 +32,8 @@ defmodule BankApiWeb.BankingController do
   end
 
   def transfer(conn, params) do
-    {amount, _} = Float.parse(params["amount"])
-
-    case BankLogic.transfer(
-           params["source"],
-           params["destination"],
-           amount
-         ) do
-      {:ok, amount} ->
-        render(conn, "transfer.json", %{amount: amount})
-
-      {:error, reason} ->
-        render(conn, "error.json", %{error: reason})
+    with {:ok, transaction} <- BankLogic.transfer(params) do
+      render(conn, "transaction.json", %{transaction: transaction})
     end
   end
 

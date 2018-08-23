@@ -18,10 +18,7 @@ defmodule BankApiWeb.Plugs.Auth do
     if valid_token?(token) do
       conn
     else
-      data = %{
-        "error" => "Access Denied",
-        "info" => "You don't have credentials to access this resource."
-      }
+      data = %{"errors" => %{"message" => "authentication required"}}
 
       conn
       |> put_status(401)

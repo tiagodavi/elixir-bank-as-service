@@ -31,7 +31,7 @@
   * **Code:** 422 Bad Request <br />
     **Content:**
     ```
-     {"errors":{"message":{"field":["message"]}}}
+     {"errors":{"message": "msg"}}
     ```
 
 **Open Account**
@@ -57,11 +57,40 @@
     * **Code:** 422 Bad Request <br />
       **Content:**
       ```
-       {"errors":{"message":{"field":["message"]}}}
+       {"errors":{"message": "msg"}}
       ```
   * **Example Usage:**
 
     POST -> `/api/open/email01@gmail.com`
+
+**Transfer Money**
+
+  * **URL**
+
+  /api/transfer/:source/:destination/:amount - Transfer money from source to destination
+
+  * **Method:**
+
+      `PUT`
+
+  * **Success Response:**
+
+    * **Code:** 200 OK <br />
+      **Content:**
+      ```
+       {"source": "email01@gmail.com",  "destination": "email02@gmail.com", "amount": 178.57}      
+      ```
+
+  * **Error Response:**
+
+    * **Code:** 422 Bad Request <br />
+      **Content:**
+      ```
+       {"errors":{"message": "msg"}}
+      ```
+  * **Example Usage:**
+
+    PUT-> `/api/transfer/email01@gmail.com/email02@gmail.com/178.57`
 
 #### API's
 - /api/banking - Return all accounts

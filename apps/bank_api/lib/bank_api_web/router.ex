@@ -20,5 +20,8 @@ defmodule BankApiWeb.Router do
 
   scope "/", BankApiWeb do
     get("/*path", CatchAllController, :index)
+    post("/*path", CatchAllController, :index)
+    put("/*path", CatchAllController, :index)
+    delete("/*path", CatchAllController, :index)
   end
 end

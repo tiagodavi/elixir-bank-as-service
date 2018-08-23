@@ -4,8 +4,9 @@ defmodule BankLogic.Models.Account do
   """
 
   import Ecto.Query, warn: false
+  import Ecto.Changeset
   alias BankLogic.Repo
-  alias BankLogic.Schemas.Account
+  alias BankLogic.Schemas.{Account, Transaction}
 
   def all() do
     query =
@@ -22,17 +23,65 @@ defmodule BankLogic.Models.Account do
     |> Repo.insert()
   end
 
+  def cash_out(attrs) do
+  end
+
   def transfer(attrs) do
+    changeset = Account.transfer_changeset(attrs)
 
+    if changeset.valid? do
+      source = get_by(email: get_change(changeset, :source))
+      destination = get_by(email: get_change(changeset, :destination))
+
+      if source && destination do
+        try_transfer(source, destination, get_change(changeset, :amount))
+      else
+        {:error, "one of the accounts does not exist"}
+      end
+    else
+      {:error, changeset}
+    end
   end
 
-  def cash_out(attrs) do 
+  defp try_transfer(source, destination, amount) do
+    if source.amount >= amount do
+      Ecto.Multi.new()
+      |> Ecto.Multi.update(:source, change(source, amount: source.amount - amount))
+      |> Ecto.Multi.update(:destination, change(destination, amount: destination.amount + amount))
+      |> Ecto.Multi.insert(:transaction, build_transaction(source, destination, amount))
+      |> Repo.transaction()
+      |> case do
+        {:ok, result} ->
+          {:ok, %{source: source.email, destination: destination.email, amount: amount}}
 
+        _ ->
+          {:error, "something has been wrong. please try again."}
+      end
+    else
+      {:error, "there's no enough money"}
+    end
   end
 
-  # def get_by(conditions) do
-  #   Repo.get_by(TelephoneCall, conditions)
-  # end
+  defp build_transaction(source, destination, amount) do
+    %Transaction{
+      operation: Transaction.operations().send_money,
+      source_id: source.id,
+      destination_id: destination.id,
+      amount: amount
+    }
+  end
+
+  defp build_transaction(source, amount) do
+    %Transaction{
+      operation: Transaction.operations().cash_out,
+      source_id: source.id,
+      amount: amount
+    }
+  end
+
+  defp get_by(conditions) do
+    Repo.get_by(Account, conditions)
+  end
 
   # def info(phone_number, period \\ nil) do
   #   query =

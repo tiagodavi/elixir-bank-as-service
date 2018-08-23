@@ -17,7 +17,11 @@ defmodule BankApiWeb.BankingView do
     %{report: report}
   end
 
-  def render("transfer.json", %{amount: amount}) do
-    %{amount: amount}
+  def render("transaction.json", %{transaction: transaction}) do
+    %{
+      source: transaction.source,
+      destination: transaction.destination,
+      amount: transaction.amount
+    }
   end
 end
