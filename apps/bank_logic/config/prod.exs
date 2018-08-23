@@ -2,6 +2,7 @@ use Mix.Config
 
 config :bank_logic, BankLogic.Repo,
   adapter: Ecto.Adapters.Postgres,
-  url: "${DATABASE_URL}",
+  url: {:system, "DATABASE_URL"},
+  database: "",
   ssl: true,
   pool_size: 1
