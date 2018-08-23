@@ -42,7 +42,7 @@ defmodule BankLogic.Models.Account do
 
     total =
       transactions
-      |> Enum.reduce(0, fn %{amount: amount}, acc -> amount + acc end)
+      |> Enum.reduce(0.0, fn %{amount: amount}, acc -> amount + acc end)
 
     {:ok, %{report: transactions, total: total}}
   end
