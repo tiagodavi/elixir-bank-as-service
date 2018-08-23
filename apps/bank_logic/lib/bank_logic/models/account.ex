@@ -7,10 +7,27 @@ defmodule BankLogic.Models.Account do
   alias BankLogic.Repo
   alias BankLogic.Schemas.Account
 
+  def all() do
+    query =
+      from(c in Account,
+        select: c
+      )
+
+    Repo.all(query)
+  end
+
   def create_account(attrs) do
     %Account{}
     |> Account.create_account_changeset(attrs)
     |> Repo.insert()
+  end
+
+  def transfer(attrs) do
+
+  end
+
+  def cash_out(attrs) do 
+
   end
 
   # def get_by(conditions) do

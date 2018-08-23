@@ -10,8 +10,9 @@ defmodule BankApiWeb.Router do
     pipe_through(:api)
 
     get("/", BankingController, :index)
+    post("/open/:email", BankingController, :create)
+
     get("/report", BankingController, :report)
-    post("/open/:email", BankingController, :open)
     get("/info/:email", BankingController, :info)
     put("/transfer/:source/:destination/:amount", BankingController, :transfer)
     put("/cash-out/:email/:amount", BankingController, :cash_out)

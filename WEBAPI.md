@@ -18,10 +18,12 @@
   * **Code:** 200 OK <br />
     **Content:**
     ```
-    [
-      {"email": "email01@gmail.com", amount: 10.0},
-      {"email": "email02@gmail.com", amount: 20.0}
-    ]
+    {
+      "data": [
+        {"id": 2, "email": "email01@gmail.com", "amount": 10.0},
+        {"id": 2, "email": "email02@gmail.com", "amount": 20.0}
+      ]
+    }
     ```
 
 * **Error Response:**
@@ -32,6 +34,34 @@
      {"errors":{"message":{"field":["message"]}}}
     ```
 
+**Open Account**
+
+  * **URL**
+
+  /api/open/:email - Open a new account
+
+  * **Method:**
+
+      `POST`
+
+  * **Success Response:**
+
+    * **Code:** 200 OK <br />
+      **Content:**
+      ```
+       {"id": 1, "email": "email01@gmail.com", "amount": 1000.00}      
+      ```
+
+  * **Error Response:**
+
+    * **Code:** 422 Bad Request <br />
+      **Content:**
+      ```
+       {"errors":{"message":{"field":["message"]}}}
+      ```
+  * **Example Usage:**
+
+    POST -> `/api/open/email01@gmail.com`
 
 #### API's
 - /api/banking - Return all accounts

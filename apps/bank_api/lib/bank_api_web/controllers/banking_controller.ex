@@ -5,17 +5,15 @@ defmodule BankApiWeb.BankingController do
 
   use BankApiWeb, :controller
 
+  action_fallback(BankApiWeb.FallBackController)
+
   def index(conn, _params) do
     render(conn, "index.json", %{accounts: BankLogic.all()})
   end
 
-  def open(conn, %{"email" => email}) do
-    case BankLogic.open(email) do
-      {:ok, email} ->
-        render(conn, "open.json", %{email: email})
-
-      {:error, reason} ->
-        render(conn, "error.json", %{error: reason})
+  def create(conn, params) do
+    with {:ok, account} <- BankLogic.open(params) do
+      render(conn, "account.json", %{account: account})
     end
   end
 

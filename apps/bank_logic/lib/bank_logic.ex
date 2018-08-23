@@ -6,11 +6,11 @@ defmodule BankLogic do
   alias BankLogic.Models.{Account}
 
   def all do
-    []
+    Account.all()
   end
 
-  def open(params) do
-    Account.create_account(params)
+  def open(attrs) do
+    Account.create_account(attrs)
   end
 
   def info do
@@ -19,9 +19,11 @@ defmodule BankLogic do
   def report do
   end
 
-  def transfer do
+  def transfer(attrs) do
+    Account.transfer(attrs)
   end
 
-  def cash_out do
+  def cash_out(attrs) do
+    Account.cash_out(attrs)
   end
 end
