@@ -6,7 +6,7 @@ defmodule BankApiWeb.BankingView do
   end
 
   def render("account.json", %{account: account}) do
-    %{id: account.id, email: account.email, amount: account.amount}
+    %{id: account.id, email: account.email, amount: Float.round(account.amount, 2)}
   end
 
   def render("transactions.json", %{transactions: transactions}) do
@@ -25,7 +25,7 @@ defmodule BankApiWeb.BankingView do
     data = %{
       operation: transaction.operation,
       source: transaction.source,
-      amount: transaction.amount
+      amount: Float.round(transaction.amount, 2)
     }
 
     if transaction[:destination] do
