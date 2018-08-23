@@ -8,7 +8,9 @@ defmodule BankApiWeb.BankingController do
   action_fallback(BankApiWeb.FallBackController)
 
   def index(conn, _params) do
-    render(conn, "index.json", %{accounts: BankLogic.all()})
+    with {:ok, accounts} <- BankLogic.all() do
+      render(conn, "accounts.json", %{accounts: accounts})
+    end
   end
 
   def create(conn, params) do
@@ -16,9 +18,11 @@ defmodule BankApiWeb.BankingController do
       render(conn, "account.json", %{account: account})
     end
   end
-  
-  def report(conn, _params) do
-    render(conn, "report.json", %{report: BankLogic.report()})
+
+  def report(conn, params) do
+    with {:ok, transactions} <- BankLogic.report(params) do
+      render(conn, "transactions.json", %{transactions: transactions})
+    end
   end
 
   def transfer(conn, params) do

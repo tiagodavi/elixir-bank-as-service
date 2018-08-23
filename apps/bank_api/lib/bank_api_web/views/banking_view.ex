@@ -1,7 +1,7 @@
 defmodule BankApiWeb.BankingView do
   use BankApiWeb, :view
 
-  def render("index.json", %{accounts: accounts}) do
+  def render("accounts.json", %{accounts: accounts}) do
     %{data: render_many(accounts, BankApiWeb.BankingView, "account.json", as: :account)}
   end
 
@@ -9,8 +9,16 @@ defmodule BankApiWeb.BankingView do
     %{id: account.id, email: account.email, amount: account.amount}
   end
 
-  def render("report.json", %{report: report}) do
-    %{report: report}
+  def render("transactions.json", %{transactions: transactions}) do
+    %{
+      data: %{
+        report:
+          render_many(transactions.report, BankApiWeb.BankingView, "transaction.json",
+            as: :transaction
+          ),
+        total: transactions.total
+      }
+    }
   end
 
   def render("transaction.json", %{transaction: transaction}) do

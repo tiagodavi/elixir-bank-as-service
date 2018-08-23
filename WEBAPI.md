@@ -90,7 +90,7 @@
       ```
   * **Example Usage:**
 
-    PUT-> `/api/transfer/email01@gmail.com/email02@gmail.com/178.57`
+    PUT -> `/api/transfer/email01@gmail.com/email02@gmail.com/178.57`
 
 
 **[Cash Out Money]**
@@ -120,12 +120,56 @@
       ```
   * **Example Usage:**
 
-    PUT-> `/api/cash-out/email01@gmail.com/178.57`
+    PUT -> `/api/cash-out/email01@gmail.com/178.57`
 
-#### API's
-- /api/banking - Return all accounts
-- /api/banking/open/:email - Open a new account
-- /api/banking/info/:email - Get account info
-- /api/banking/transfer/:source_email/:destination_email/:amount - Transfer Money from source to destination
-- /api/banking/cash-out/:email/:amount - Cash Out from Account
-- /api/banking/report - Return all Transactions for day (sum), month, year
+**[Report]**
+
+  * **URL**
+
+    /api/report/:start_date/:end_date - Generate a report from start_date to end_date
+
+  * **Method:**
+
+      `GET`
+
+  * **Success Response:**
+
+    * **Code:** 200 OK <br />
+      **Content:**
+      ```
+      {
+         "data": {
+             "total": 1000,
+             "report": [
+                 {
+                     "source": "email01@gmail.com",
+                     "destination": "email02@gmail.com",
+                     "amount": 75
+                 },
+                 {
+                     "source": "email01@gmail.com",
+                     "amount": 75
+                 },
+                 {
+                     "source": "email01@gmail.com",
+                     "amount": 800
+                 },
+                 {
+                     "source": "email01@gmail.com",
+                     "amount": 50
+                 }
+             ]
+         }
+      }   
+      ```
+
+  * **Error Response:**
+
+    * **Code:** 422 Bad Request <br />
+      **Content:**
+      ```
+       {"errors":{"message": "msg"}}
+      ```
+  * **Example Usage:**
+
+    GET -> `/api/report/2018-08-01/2018-08-23`

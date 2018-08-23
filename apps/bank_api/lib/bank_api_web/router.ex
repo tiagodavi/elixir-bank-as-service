@@ -13,7 +13,7 @@ defmodule BankApiWeb.Router do
     post("/open/:email", BankingController, :create)
     put("/transfer/:source/:destination/:amount", BankingController, :transfer)
     put("/cash-out/:source/:amount", BankingController, :cash_out)
-    get("/report", BankingController, :report)
+    get("/report/:start_date/:end_date", BankingController, :report)
   end
 
   scope "/", BankApiWeb do

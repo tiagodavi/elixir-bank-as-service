@@ -10,12 +10,14 @@ defmodule BankLogicTest do
 
   describe ".all" do
     test "returns empty list when there are no accounts" do
-      assert BankLogic.all() == []
+      assert {:ok, accounts} = BankLogic.all()
+      assert accounts == []
     end
 
     test "returns items when there are accounts" do
       BankLogic.open(%{email: "tiago.asp.net@gmail.com"})
-      assert Enum.count(BankLogic.all()) == 1
+      assert {:ok, accounts} = BankLogic.all()
+      assert Enum.count(accounts) == 1
     end
   end
 
@@ -119,6 +121,65 @@ defmodule BankLogicTest do
 
       assert {:ok, result} = BankLogic.cash_out(data)
       assert result == data
+    end
+  end
+
+  describe ".report" do
+    test "returns empty list when there are no accounts" do
+      start_date =
+        Date.utc_today()
+        |> Date.to_string()
+
+      end_date =
+        Date.utc_today()
+        |> Date.add(2)
+        |> Date.to_string()
+
+      assert {:ok, transactions} = BankLogic.report(%{start_date: start_date, end_date: end_date})
+
+      assert transactions == %{total: 0, report: []}
+    end
+
+    test "start_date can't be greater or equal than end_date" do
+      start_date =
+        Date.utc_today()
+        |> Date.add(1)
+        |> Date.to_string()
+
+      end_date =
+        Date.utc_today()
+        |> Date.to_string()
+
+      assert {:error, changeset} = BankLogic.report(%{start_date: start_date, end_date: end_date})
+      assert changeset.errors == [dates: {"start_date is greater or equal than end_date", []}]
+    end
+
+    test "returns report" do
+      BankLogic.open(%{email: "email01@gmail.com"})
+      BankLogic.open(%{email: "email02@gmail.com"})
+
+      data = %{
+        source: "email01@gmail.com",
+        destination: "email02@gmail.com",
+        amount: 100
+      }
+
+      assert {:ok, _} = BankLogic.transfer(data)
+      assert {:ok, _} = BankLogic.transfer(data)
+      assert {:ok, _} = BankLogic.cash_out(data)
+
+      start_date =
+        Date.utc_today()
+        |> Date.to_string()
+
+      end_date =
+        Date.utc_today()
+        |> Date.add(1)
+        |> Date.to_string()
+
+      assert {:ok, transactions} = BankLogic.report(%{start_date: start_date, end_date: end_date})
+      assert transactions.total == 300.00
+      assert Enum.count(transactions.report) == 3
     end
   end
 end

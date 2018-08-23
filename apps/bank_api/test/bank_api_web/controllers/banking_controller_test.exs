@@ -218,4 +218,66 @@ defmodule BankApiWeb.BankingControllerTest do
              }
     end
   end
+
+  describe "/api/report/:start_date/:end_date" do
+    test "authorization required", %{conn: conn} do
+      path = banking_path(conn, :report, "2018-08-23", "2018-08-24")
+
+      conn =
+        conn
+        |> get(path)
+
+      response = json_response(conn, 401)
+
+      assert response == @authorization_error
+    end
+
+    test "shows empty report", %{conn: conn} do
+      path = banking_path(conn, :report, "2018-08-23", "2018-08-24")
+
+      conn =
+        conn
+        |> authenticate
+        |> get(path)
+
+      response = json_response(conn, 200)
+      assert response == %{"data" => %{"report" => [], "total" => 0}}
+    end
+
+    test "shows full report", %{conn: conn} do
+      BankLogic.open(%{email: "email01@gmail.com"})
+      BankLogic.open(%{email: "email02@gmail.com"})
+
+      data = %{
+        source: "email01@gmail.com",
+        destination: "email02@gmail.com",
+        amount: 125.50
+      }
+
+      BankLogic.transfer(data)
+      BankLogic.transfer(data)
+      BankLogic.cash_out(data)
+
+      start_date =
+        Date.utc_today()
+        |> Date.to_string()
+
+      end_date =
+        Date.utc_today()
+        |> Date.add(1)
+        |> Date.to_string()
+
+      path = banking_path(conn, :report, start_date, end_date)
+
+      conn =
+        conn
+        |> authenticate
+        |> get(path)
+
+      response = json_response(conn, 200)["data"]
+
+      assert response["total"] == 376.50
+      assert Enum.count(response["report"]) == 3
+    end
+  end
 end

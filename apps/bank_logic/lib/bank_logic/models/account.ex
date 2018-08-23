@@ -8,13 +8,52 @@ defmodule BankLogic.Models.Account do
   alias BankLogic.Repo
   alias BankLogic.Schemas.{Account, Transaction}
 
+  def report(attrs) do
+    changeset = Transaction.report_changeset(attrs)
+
+    if changeset.valid? do
+      build_report(get_change(changeset, :start_date), get_change(changeset, :end_date))
+    else
+      {:error, changeset}
+    end
+  end
+
+  defp build_report(start_date, end_date) do
+    {:ok, start_date} =
+      start_date
+      |> NaiveDateTime.new(~T[00:00:00.000])
+
+    {:ok, end_date} =
+      end_date
+      |> NaiveDateTime.new(~T[23:59:59.000])
+
+    query =
+      from(t in Transaction,
+        left_join: s in Account,
+        on: s.id == t.source_id,
+        left_join: d in Account,
+        on: d.id == t.destination_id,
+        where: t.inserted_at >= ^start_date,
+        where: t.inserted_at <= ^end_date,
+        select: %{amount: t.amount, source: s.email, destination: d.email}
+      )
+
+    transactions = Repo.all(query)
+
+    total =
+      transactions
+      |> Enum.reduce(0, fn %{amount: amount}, acc -> amount + acc end)
+
+    {:ok, %{report: transactions, total: total}}
+  end
+
   def all() do
     query =
       from(c in Account,
         select: c
       )
 
-    Repo.all(query)
+    {:ok, Repo.all(query)}
   end
 
   def create_account(attrs) do
@@ -107,50 +146,4 @@ defmodule BankLogic.Models.Account do
   defp get_by(conditions) do
     Repo.get_by(Account, conditions)
   end
-
-  # def info(phone_number, period \\ nil) do
-  #   query =
-  #     from(
-  #       t0 in TelephoneCall,
-  #       join: t1 in TelephoneCall,
-  #       on: t0.call_id == t1.call_id,
-  #       select: %{
-  #         destination: t0.destination,
-  #         call_start: t0.timestamp,
-  #         rule_id: t0.rule_id,
-  #         call_end: t1.timestamp
-  #       },
-  #       where: t0.source == ^phone_number,
-  #       where: t0.type == "start",
-  #       where: t1.type == "end"
-  #     )
-  #
-  #   if period do
-  #     [month, year] = String.split(period, "/")
-  #     month = String.to_integer(month)
-  #     year = String.to_integer(year)
-  #
-  #     q =
-  #       from(
-  #         [_, t1] in query,
-  #         where: fragment("EXTRACT(MONTH FROM ?)", t1.timestamp) == ^month,
-  #         where: fragment("EXTRACT(YEAR FROM ?)", t1.timestamp) == ^year
-  #       )
-  #
-  #     Repo.all(q)
-  #   else
-  #     previous =
-  #       NaiveDateTime.utc_now()
-  #       |> NaiveDateTime.add(-2_592_000)
-  #
-  #     q =
-  #       from(
-  #         [_, t1] in query,
-  #         where: fragment("EXTRACT(MONTH FROM ?)", t1.timestamp) == ^previous.month,
-  #         where: fragment("EXTRACT(YEAR FROM ?)", t1.timestamp) == ^previous.year
-  #       )
-  #
-  #     Repo.all(q)
-  #   end
-  # end
 end
