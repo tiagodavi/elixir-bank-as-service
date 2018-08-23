@@ -16,7 +16,7 @@ defmodule BankApiWeb.BankingView do
           render_many(transactions.report, BankApiWeb.BankingView, "transaction.json",
             as: :transaction
           ),
-        total: transactions.total
+        total: Float.round(transactions.total, 2)
       }
     }
   end
