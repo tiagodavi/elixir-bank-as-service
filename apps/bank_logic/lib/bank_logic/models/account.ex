@@ -86,6 +86,8 @@ defmodule BankLogic.Models.Account do
       |> Repo.transaction()
       |> case do
         {:ok, _} ->
+          IO.inspect("An email has been sent to #{source.email}")
+
           {:ok,
            %{source: source.email, amount: amount, operation: Transaction.operations().cash_out}}
 
