@@ -16,17 +16,7 @@ defmodule BankApiWeb.BankingController do
       render(conn, "account.json", %{account: account})
     end
   end
-
-  def info(conn, %{"email" => email}) do
-    case BankLogic.info(email) do
-      {:ok, account} ->
-        render(conn, "account.json", %{account: account})
-
-      {:error, reason} ->
-        render(conn, "error.json", %{error: reason})
-    end
-  end
-
+  
   def report(conn, _params) do
     render(conn, "report.json", %{report: BankLogic.report()})
   end

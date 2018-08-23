@@ -9,10 +9,6 @@ defmodule BankApiWeb.BankingView do
     %{id: account.id, email: account.email, amount: account.amount}
   end
 
-  def render("account.json", %{account: account}) do
-    %{account: account}
-  end
-
   def render("report.json", %{report: report}) do
     %{report: report}
   end
