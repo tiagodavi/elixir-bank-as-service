@@ -1,6 +1,6 @@
-defmodule BankLogic.Models.Account do
+defmodule BankLogic.Account do
   @moduledoc """
-  Account Model to handle business rules
+  Account Module to handle business rules
   """
 
   import Ecto.Query, warn: false
@@ -56,7 +56,7 @@ defmodule BankLogic.Models.Account do
     {:ok, Repo.all(query)}
   end
 
-  def create_account(attrs) do
+  def create(attrs) do
     %Account{}
     |> Account.create_account_changeset(attrs)
     |> Repo.insert()

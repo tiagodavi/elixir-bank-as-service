@@ -3,14 +3,14 @@ defmodule BankLogic do
   Public interface to access Bank Logic
   """
 
-  alias BankLogic.Models.Account
+  alias BankLogic.Account
 
   def all do
     Account.all()
   end
 
   def open(attrs) do
-    Account.create_account(attrs)
+    Account.create(attrs)
   end
 
   def report(attrs) do
