@@ -5,7 +5,7 @@
   - ***username: backoffice***
   - ***password: backoffice***
 
-* **URL**
+* **[Get all accounts]**
 
   /api - Return all accounts
 
@@ -18,12 +18,10 @@
   * **Code:** 200 OK <br />
     **Content:**
     ```
-    {
-      "data": [
-        {"id": 2, "email": "email01@gmail.com", "amount": 10.0},
-        {"id": 2, "email": "email02@gmail.com", "amount": 20.0}
-      ]
-    }
+    [
+      {"id": 2, "number": "16ec49e5", "amount": "R$10,00"},
+      {"id": 2, "number": "17ec49e5", "amount": "R$10,00"}
+    ]
     ```
 
 * **Error Response:**
@@ -34,11 +32,39 @@
      {"errors": "msg"}
     ```
 
+* **[Get account balance]**
+
+  /api/balance/:number - Return account balance
+
+* **Method:**
+
+  `GET`
+
+* **Success Response:**
+
+  * **Code:** 200 OK <br />
+    **Content:**
+    ```
+      {"id": 1, "number": "16ec49e5", "amount": "R$1.000,00"}
+    ```
+
+* **Error Response:**
+
+  * **Code:** 422 Bad Request <br />
+    **Content:**
+    ```
+     {"errors": "msg"}
+    ```
+
+* **Example Usage:**
+
+  GET -> `/api/balance/16ec49e5`
+
 **[Open Account]**
 
   * **URL**
 
-    /api/open/:email - Open a new account
+    /api/open - Open a new account
 
   * **Method:**
 
@@ -49,7 +75,7 @@
     * **Code:** 200 OK <br />
       **Content:**
       ```
-       {"id": 1, "email": "email01@gmail.com", "amount": 1000.00}      
+       {"id": 1, "number": "16ec49e5", "amount": "R$1.000,00"}      
       ```
 
   * **Error Response:**
@@ -61,7 +87,7 @@
       ```
   * **Example Usage:**
 
-    POST -> `/api/open/email01@gmail.com`
+    POST -> `/api/open`
 
 **[Transfer Money]**
 
@@ -71,14 +97,14 @@
 
   * **Method:**
 
-      `PUT`
+      `POST`
 
   * **Success Response:**
 
     * **Code:** 200 OK <br />
       **Content:**
       ```
-       {"source": "email01@gmail.com",  "destination": "email02@gmail.com", "amount": 178.57, "operation": 1}      
+       {"source": "16ec49e5",  "destination": "17ec49e5", "amount": "R$178,57", "operation": 1}      
       ```
 
   * **Error Response:**
@@ -90,7 +116,7 @@
       ```
   * **Example Usage:**
 
-    PUT -> `/api/transfer/email01@gmail.com/email02@gmail.com/178.57`
+    POST -> `/api/transfer/16ec49e5/17ec49e5/17857`
 
 
 **[Cash Out Money]**
@@ -101,14 +127,14 @@
 
   * **Method:**
 
-      `PUT`
+      `POST`
 
   * **Success Response:**
 
     * **Code:** 200 OK <br />
       **Content:**
       ```
-       {"source": "email01@gmail.com", "amount": 178.57, "operation": 2}      
+       {"source": "17ec49e5", "amount": "R$178,57", "operation": 2}      
       ```
 
   * **Error Response:**
@@ -120,7 +146,7 @@
       ```
   * **Example Usage:**
 
-    PUT -> `/api/cash-out/email01@gmail.com/178.57`
+    POST -> `/api/cash-out/17ec49e5/17857`
 
 **[Report]**
 
@@ -139,27 +165,27 @@
       ```
       {
          "data": {
-             "total": 1000,
+             "total": "R$1.000,00"
              "report": [
                  {
-                     "source": "email01@gmail.com",
-                     "destination": "email02@gmail.com",
-                     "amount": 75,
+                     "source": "16ec49e5",
+                     "destination": "17ec49e5",
+                     "amount": "R$75,00",
                      "operation": 1
                  },
                  {
-                     "source": "email01@gmail.com",
-                     "amount": 75,
+                     "source": "16ec49e5",
+                     "amount": "R$75,00",
                      "operation": 2
                  },
                  {
-                     "source": "email01@gmail.com",
-                     "amount": 800,
+                     "source": "16ec49e5",
+                     "amount": "R$800,00",
                      "operation": 2
                  },
                  {
-                     "source": "email01@gmail.com",
-                     "amount": 50,
+                     "source": "16ec49e5",
+                     "amount": "R$50,00",
                      "operation": 2
                  }
              ]
