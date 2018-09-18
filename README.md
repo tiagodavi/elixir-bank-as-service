@@ -8,6 +8,8 @@ To start your Phoenix server:
   * Create your database with `mix ecto.setup`
   * Run tests with `mix test`
   * Start Phoenix endpoint with `mix phx.server`
+  * (Optional) Format your code with `mix format`
+  * (Optional) Check refactoring opportunities with `mix credo --strict`
   * Open [`WEBAPI.md`](https://github.com/tiagodavi/elixir-bank-as-service/blob/master/WEBAPI.md) to see the api documentation
   * Online on: https://spherical-humble-blueandgoldmackaw.gigalixirapp.com/api
 
@@ -20,5 +22,3 @@ To start your Phoenix server:
   - IDE Atom 1.28.2
   - Elixir Umbrella Application
   - PostgreSQL Database 9.6
-  - Format your code with `mix format`
-  - Check refactoring opportunities with `mix credo list`

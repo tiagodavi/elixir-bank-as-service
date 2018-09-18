@@ -47,7 +47,7 @@ defmodule BankLogic.Models.Account do
     {:ok, %{report: transactions, total: total}}
   end
 
-  def all() do
+  def all do
     query =
       from(c in Account,
         select: c
@@ -86,8 +86,6 @@ defmodule BankLogic.Models.Account do
       |> Repo.transaction()
       |> case do
         {:ok, _} ->
-          IO.inspect("An email has been sent to #{source.email}")
-
           {:ok,
            %{source: source.email, amount: amount, operation: Transaction.operations().cash_out}}
 
