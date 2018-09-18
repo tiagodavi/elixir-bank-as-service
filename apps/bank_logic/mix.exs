@@ -27,8 +27,8 @@ defmodule BankLogic.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ecto, "~> 2.0"},
-      {:postgrex, "~> 0.11"}
+      {:ecto, "~> 2.2"},
+      {:postgrex, ">= 0.0.0"}
     ]
   end
 end
