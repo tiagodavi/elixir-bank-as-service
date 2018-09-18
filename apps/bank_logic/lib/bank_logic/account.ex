@@ -56,9 +56,9 @@ defmodule BankLogic.Account do
     {:ok, Repo.all(query)}
   end
 
-  def create(attrs) do
+  def create do
     %Account{}
-    |> Account.create_account_changeset(attrs)
+    |> Account.create_changeset()
     |> Repo.insert()
   end
 

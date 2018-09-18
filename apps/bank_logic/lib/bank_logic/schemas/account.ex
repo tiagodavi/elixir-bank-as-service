@@ -7,45 +7,41 @@ defmodule BankLogic.Schemas.Account do
   import Ecto.Changeset
 
   schema "accounts" do
-    field(:email, :string)
-    field(:amount, :float)
+    field(:key, :string)
+    field(:amount, Money.Ecto.Type)
     timestamps()
   end
 
-  def create_account_changeset(account, attrs) do
+  def create_changeset(account, attrs) do
     account
-    |> cast(attrs, [:email])
-    |> validate_required([:email])
-    |> validate_format(:email, ~r/@/)
-    |> unique_constraint(:email)
+    |> cast(attrs, [:key])
+    |> validate_required([:key])
+    |> unique_constraint(:key)
     |> add_default_amount
   end
 
   def transfer_changeset(attrs) do
     data = %{}
-    types = %{source: :string, destination: :string, amount: :float}
+    types = %{source: :string, destination: :string, amount: :integer}
 
     {data, types}
     |> cast(attrs, Map.keys(types))
     |> validate_required(Map.keys(types))
-    |> validate_format(:source, ~r/@/)
-    |> validate_format(:destination, ~r/@/)
     |> validate_source_destination
   end
 
   def cash_out_changeset(attrs) do
     data = %{}
-    types = %{source: :string, amount: :float}
+    types = %{source: :string, amount: :integer}
 
     {data, types}
     |> cast(attrs, Map.keys(types))
     |> validate_required(Map.keys(types))
-    |> validate_format(:source, ~r/@/)
   end
 
   defp add_default_amount(changeset) do
     changeset
-    |> put_change(:amount, 1_000.00)
+    |> put_change(:amount, 1000_00)
   end
 
   defp validate_source_destination(changeset) do

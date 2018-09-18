@@ -13,8 +13,8 @@ defmodule BankApiWeb.BankingController do
     end
   end
 
-  def create(conn, params) do
-    with {:ok, account} <- BankLogic.open(params) do
+  def create(conn, _params) do
+    with {:ok, account} <- BankLogic.open() do
       render(conn, "account.json", %{account: account})
     end
   end

@@ -9,8 +9,8 @@ defmodule BankLogic do
     Account.all()
   end
 
-  def open(attrs) do
-    Account.create(attrs)
+  def open do
+    Account.create()
   end
 
   def report(attrs) do

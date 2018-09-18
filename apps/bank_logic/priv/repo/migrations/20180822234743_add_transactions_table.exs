@@ -4,7 +4,7 @@ defmodule BankLogic.Repo.Migrations.AddTransactionsTable do
   def change do
     create table(:transactions) do
       add :operation, :integer
-      add :amount, :float
+      add :amount, :integer
       add :source_id, references(:accounts, on_delete: :delete_all), null: false
       add :destination_id, references(:accounts, on_delete: :delete_all), null: true
 

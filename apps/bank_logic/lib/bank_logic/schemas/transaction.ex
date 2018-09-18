@@ -15,7 +15,7 @@ defmodule BankLogic.Schemas.Transaction do
     field(:source_id, :id)
     field(:destination_id, :id)
     field(:operation, :integer)
-    field(:amount, :float)
+    field(:amount, Money.Ecto.Type)
     timestamps()
   end
 

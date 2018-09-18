@@ -3,10 +3,10 @@ defmodule BankLogic.Repo.Migrations.AddAccountsTable do
 
   def change do
     create table("accounts") do
-      add :email,  :string
-      add :amount, :float
+      add :key,  :string
+      add :amount, :integer
       timestamps()
     end
-    create unique_index(:accounts, [:email])
+    create unique_index(:accounts, [:key])
   end
 end
