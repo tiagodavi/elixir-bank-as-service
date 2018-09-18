@@ -18,35 +18,6 @@ defmodule BankLogic.Account do
     end
   end
 
-  defp build_report(start_date, end_date) do
-    {:ok, start_date} =
-      start_date
-      |> NaiveDateTime.new(~T[00:00:00.000])
-
-    {:ok, end_date} =
-      end_date
-      |> NaiveDateTime.new(~T[23:59:59.000])
-
-    query =
-      from(t in Transaction,
-        left_join: s in Account,
-        on: s.id == t.source_id,
-        left_join: d in Account,
-        on: d.id == t.destination_id,
-        where: t.inserted_at >= ^start_date,
-        where: t.inserted_at <= ^end_date,
-        select: %{amount: t.amount, source: s.email, destination: d.email, operation: t.operation}
-      )
-
-    transactions = Repo.all(query)
-
-    total =
-      transactions
-      |> Enum.reduce(0.0, fn %{amount: amount}, acc -> amount + acc end)
-
-    {:ok, %{report: transactions, total: total}}
-  end
-
   def all do
     query =
       from(c in Account,
@@ -61,11 +32,11 @@ defmodule BankLogic.Account do
       Ecto.UUID.generate()
       |> String.slice(0, 8)
 
-    with {:ok, changeset} <-
+    with {:ok, account} <-
            %Account{}
            |> Account.create_changeset(%{number: number})
            |> Repo.insert() do
-      {:ok, changeset}
+      {:ok, to_money(account)}
     else
       {:error, changeset} -> create()
     end
@@ -165,7 +136,40 @@ defmodule BankLogic.Account do
     }
   end
 
+  defp build_report(start_date, end_date) do
+    {:ok, start_date} =
+      start_date
+      |> NaiveDateTime.new(~T[00:00:00.000])
+
+    {:ok, end_date} =
+      end_date
+      |> NaiveDateTime.new(~T[23:59:59.000])
+
+    query =
+      from(t in Transaction,
+        left_join: s in Account,
+        on: s.id == t.source_id,
+        left_join: d in Account,
+        on: d.id == t.destination_id,
+        where: t.inserted_at >= ^start_date,
+        where: t.inserted_at <= ^end_date,
+        select: %{amount: t.amount, source: s.email, destination: d.email, operation: t.operation}
+      )
+
+    transactions = Repo.all(query)
+
+    total =
+      transactions
+      |> Enum.reduce(0.0, fn %{amount: amount}, acc -> amount + acc end)
+
+    {:ok, %{report: transactions, total: total}}
+  end
+
   defp get_by(conditions) do
     Repo.get_by(Account, conditions)
+  end
+
+  defp to_money(account) do
+    %Account{account | amount: Money.new(account.amount)}
   end
 end

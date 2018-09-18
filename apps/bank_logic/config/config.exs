@@ -4,6 +4,14 @@ use Mix.Config
 
 config :bank_logic, :ecto_repos, [BankLogic.Repo]
 
+config :money,
+  default_currency: :BRL,
+  separator: ".",
+  delimeter: ",",
+  symbol: true,
+  symbol_on_right: false,
+  symbol_space: false
+
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,

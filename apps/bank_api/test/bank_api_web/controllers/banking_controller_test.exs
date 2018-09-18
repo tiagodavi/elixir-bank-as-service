@@ -56,9 +56,9 @@ defmodule BankApiWeb.BankingControllerTest do
     end
   end
 
-  describe "/api/open/:email" do
+  describe "/api/open" do
     setup %{conn: conn} do
-      {:ok, conn: conn, path: banking_path(conn, :create, "tiago.asp.net@gmail.com")}
+      {:ok, conn: conn, path: banking_path(conn, :create)}
     end
 
     test "authorization required", %{conn: conn, path: path} do
@@ -80,8 +80,8 @@ defmodule BankApiWeb.BankingControllerTest do
       response = json_response(conn, 200)
 
       assert response == %{
-               "amount" => 1.0e3,
-               "email" => "tiago.asp.net@gmail.com",
+               "amount" => "R$1.000,00",
+               "number" => response["number"],
                "id" => response["id"]
              }
     end
