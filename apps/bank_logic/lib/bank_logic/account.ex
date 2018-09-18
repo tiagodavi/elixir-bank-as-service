@@ -57,9 +57,18 @@ defmodule BankLogic.Account do
   end
 
   def create do
-    %Account{}
-    |> Account.create_changeset()
-    |> Repo.insert()
+    number =
+      Ecto.UUID.generate()
+      |> String.slice(0, 8)
+
+    with {:ok, changeset} <-
+           %Account{}
+           |> Account.create_changeset(%{number: number})
+           |> Repo.insert() do
+      {:ok, changeset}
+    else
+      {:error, changeset} -> create()
+    end
   end
 
   def cash_out(attrs) do

@@ -7,22 +7,22 @@ defmodule BankLogic.Schemas.Account do
   import Ecto.Changeset
 
   schema "accounts" do
-    field(:key, :string)
+    field(:number, :string)
     field(:amount, Money.Ecto.Type)
     timestamps()
   end
 
   def create_changeset(account, attrs) do
     account
-    |> cast(attrs, [:key])
-    |> validate_required([:key])
-    |> unique_constraint(:key)
+    |> cast(attrs, [:number])
+    |> validate_required([:number])
+    |> unique_constraint(:number)
     |> add_default_amount
   end
 
   def transfer_changeset(attrs) do
     data = %{}
-    types = %{source: :string, destination: :string, amount: :integer}
+    types = %{source: :string, destination: :string, amount: Money.Ecto.Type}
 
     {data, types}
     |> cast(attrs, Map.keys(types))
@@ -32,7 +32,7 @@ defmodule BankLogic.Schemas.Account do
 
   def cash_out_changeset(attrs) do
     data = %{}
-    types = %{source: :string, amount: :integer}
+    types = %{source: :string, amount: Money.Ecto.Type}
 
     {data, types}
     |> cast(attrs, Map.keys(types))

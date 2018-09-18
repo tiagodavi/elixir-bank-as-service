@@ -25,10 +25,12 @@ defmodule BankLogicTest do
   end
 
   describe ".open" do
+    @tag :run
     test "creates a new account with $1000.00" do
-      assert {:ok, %Account{} = account} = BankLogic.open(%{email: "tiago.asp.net@gmail.com"})
-      assert account.email === "tiago.asp.net@gmail.com"
-      assert account.amount === 1000.00
+      assert {:ok, %Account{} = account} = BankLogic.open()
+
+      IO.inspect account
+      assert account.amount === 1000_00
     end
 
     test "avoids duplicated accounts" do
