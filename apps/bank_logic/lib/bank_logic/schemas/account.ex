@@ -41,7 +41,7 @@ defmodule BankLogic.Schemas.Account do
 
   defp add_default_amount(changeset) do
     changeset
-    |> put_change(:amount, 1000_00)
+    |> put_change(:amount, Money.new(100_000))
   end
 
   defp validate_source_destination(changeset) do

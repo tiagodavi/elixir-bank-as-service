@@ -28,7 +28,7 @@ defmodule Bank.MixProject do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run apps/bank_logic/priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "coveralls -u"]
+      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]
   end
 end

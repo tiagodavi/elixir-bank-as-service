@@ -1,13 +1,11 @@
 defmodule BankLogicTest do
   use ExUnit.Case, async: true
 
-  @transfer BankLogic.Schemas.Transaction.operations().transfer
-  @cash_out BankLogic.Schemas.Transaction.operations().cash_out
-
   alias BankLogic.Schemas.{Account}
+  alias Ecto.Adapters.SQL.Sandbox
 
   setup do
-    Ecto.Adapters.SQL.Sandbox.checkout(BankLogic.Repo)
+    Sandbox.checkout(BankLogic.Repo)
     :ok
   end
 
@@ -18,32 +16,43 @@ defmodule BankLogicTest do
     end
 
     test "returns items when there are accounts" do
-      BankLogic.open(%{email: "tiago.asp.net@gmail.com"})
+      BankLogic.open()
       assert {:ok, accounts} = BankLogic.all()
       assert Enum.count(accounts) == 1
     end
   end
 
   describe ".open" do
-
-    @tag :run
     test "creates a new account with R$1000.00" do
       assert {:ok, %Account{} = account} = BankLogic.open()
-      assert account.amount === %Money{amount: 1000_00, currency: :BRL}
+      assert account.amount === %Money{amount: 100_000, currency: :BRL}
     end
 
     test "avoids duplicated accounts" do
-      assert {:ok, %Account{} = account} = BankLogic.open(%{email: "tiago.asp.net@gmail.com"})
-      assert {:error, changeset} = BankLogic.open(%{email: "tiago.asp.net@gmail.com"})
-      assert changeset.errors == [email: {"has already been taken", []}]
+      assert {:ok, %Account{} = account1} = BankLogic.open()
+      assert {:ok, %Account{} = account2} = BankLogic.open()
+      refute account1.number === account2.number
+    end
+  end
+
+  describe ".balance" do
+    test "error when one account does not exist" do
+      assert {:error, msg} = BankLogic.balance(%{"number" => "000"})
+      assert msg == "account does not exist"
+    end
+
+    test "returns balance" do
+      {:ok, account} = BankLogic.open()
+      assert {:ok, result} = BankLogic.balance(%{"number" => account.number})
+      assert result.amount == %Money{amount: 100_000, currency: :BRL}
     end
   end
 
   describe ".transfer" do
     test "error when one of the accounts does not exist" do
       data = %{
-        source: "email01@gmail.com",
-        destination: "email02@gmail.com",
+        source: "16ec49e5",
+        destination: "17ec49e5",
         amount: 10
       }
 
@@ -53,8 +62,8 @@ defmodule BankLogicTest do
 
     test "error when accounts are equals" do
       data = %{
-        source: "email01@gmail.com",
-        destination: "email01@gmail.com",
+        source: "16ec49e5",
+        destination: "16ec49e5",
         amount: 10
       }
 
@@ -63,13 +72,13 @@ defmodule BankLogicTest do
     end
 
     test "error when there's no enough money" do
-      BankLogic.open(%{email: "email01@gmail.com"})
-      BankLogic.open(%{email: "email02@gmail.com"})
+      {:ok, source} = BankLogic.open()
+      {:ok, destination} = BankLogic.open()
 
       data = %{
-        source: "email01@gmail.com",
-        destination: "email02@gmail.com",
-        amount: 1001
+        source: source.number,
+        destination: destination.number,
+        amount: 100_100
       }
 
       assert {:error, msg} = BankLogic.transfer(data)
@@ -77,39 +86,43 @@ defmodule BankLogicTest do
     end
 
     test "transfers money with success" do
-      BankLogic.open(%{email: "email01@gmail.com"})
-      BankLogic.open(%{email: "email02@gmail.com"})
+      {:ok, source} = BankLogic.open()
+      {:ok, destination} = BankLogic.open()
 
       data = %{
-        source: "email01@gmail.com",
-        destination: "email02@gmail.com",
-        amount: 75,
-        operation: @transfer
+        source: source.number,
+        destination: destination.number,
+        amount: 75_00
       }
 
       assert {:ok, result} = BankLogic.transfer(data)
-      assert result == data
+      assert result.amount === %Money{amount: 75_00, currency: :BRL}
+
+      assert {:ok, source} = BankLogic.balance(%{number: source.number})
+      assert {:ok, destination} = BankLogic.balance(%{number: destination.number})
+
+      assert source.amount === %Money{amount: 92_500, currency: :BRL}
+      assert destination.amount === %Money{amount: 107_500, currency: :BRL}
     end
   end
 
   describe ".cash_out" do
     test "error when account does not exist" do
       data = %{
-        source: "email01@gmail.com",
+        source: "16ec49e5",
         amount: 10
       }
 
       assert {:error, msg} = BankLogic.cash_out(data)
-
       assert msg == "account does not exist"
     end
 
     test "error when there's no enough money" do
-      BankLogic.open(%{email: "email01@gmail.com"})
+      {:ok, source} = BankLogic.open()
 
       data = %{
-        source: "email01@gmail.com",
-        amount: 1001
+        source: source.number,
+        amount: 100_100
       }
 
       assert {:error, msg} = BankLogic.cash_out(data)
@@ -117,16 +130,18 @@ defmodule BankLogicTest do
     end
 
     test "cashs out with success" do
-      BankLogic.open(%{email: "email01@gmail.com"})
+      {:ok, source} = BankLogic.open()
 
       data = %{
-        source: "email01@gmail.com",
-        amount: 100,
-        operation: @cash_out
+        source: source.number,
+        amount: 10_080
       }
 
       assert {:ok, result} = BankLogic.cash_out(data)
-      assert result == data
+      assert result.amount === %Money{amount: 10_080, currency: :BRL}
+
+      assert {:ok, source} = BankLogic.balance(%{number: source.number})
+      assert source.amount === %Money{amount: 89_920, currency: :BRL}
     end
   end
 
@@ -142,8 +157,7 @@ defmodule BankLogicTest do
         |> Date.to_string()
 
       assert {:ok, transactions} = BankLogic.report(%{start_date: start_date, end_date: end_date})
-
-      assert transactions == %{total: 0, report: []}
+      assert transactions === %{report: [], total: %Money{amount: 0, currency: :BRL}}
     end
 
     test "start_date can't be greater or equal than end_date" do
@@ -161,13 +175,13 @@ defmodule BankLogicTest do
     end
 
     test "returns report" do
-      BankLogic.open(%{email: "email01@gmail.com"})
-      BankLogic.open(%{email: "email02@gmail.com"})
+      {:ok, source} = BankLogic.open()
+      {:ok, destination} = BankLogic.open()
 
       data = %{
-        source: "email01@gmail.com",
-        destination: "email02@gmail.com",
-        amount: 100
+        source: source.number,
+        destination: destination.number,
+        amount: 10_000
       }
 
       assert {:ok, _} = BankLogic.transfer(data)
@@ -184,7 +198,7 @@ defmodule BankLogicTest do
         |> Date.to_string()
 
       assert {:ok, transactions} = BankLogic.report(%{start_date: start_date, end_date: end_date})
-      assert transactions.total == 300.00
+      assert transactions.total === %Money{amount: 30_000, currency: :BRL}
       assert Enum.count(transactions.report) == 3
     end
   end

@@ -13,6 +13,12 @@ defmodule BankApiWeb.BankingController do
     end
   end
 
+  def balance(conn, params) do
+    with {:ok, account} <- BankLogic.balance(params) do
+      render(conn, "account.json", %{account: account})
+    end
+  end
+
   def create(conn, _params) do
     with {:ok, account} <- BankLogic.open() do
       render(conn, "account.json", %{account: account})
@@ -26,14 +32,18 @@ defmodule BankApiWeb.BankingController do
   end
 
   def transfer(conn, params) do
-    with {:ok, transaction} <- BankLogic.transfer(params) do
+    with {:ok, transaction} <- BankLogic.transfer(amount_to_integer(params)) do
       render(conn, "transaction.json", %{transaction: transaction})
     end
   end
 
   def cash_out(conn, params) do
-    with {:ok, transaction} <- BankLogic.cash_out(params) do
+    with {:ok, transaction} <- BankLogic.cash_out(amount_to_integer(params)) do
       render(conn, "transaction.json", %{transaction: transaction})
     end
+  end
+
+  defp amount_to_integer(params) do
+    Map.merge(params, %{"amount" => String.to_integer(params["amount"])})
   end
 end

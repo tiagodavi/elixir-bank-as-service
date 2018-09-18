@@ -1,13 +1,15 @@
 defmodule BankApiWeb.BankingControllerTest do
   use BankApiWeb.ConnCase, async: true
 
+  alias Ecto.Adapters.SQL.Sandbox
+
   @transfer BankLogic.Schemas.Transaction.operations().transfer
   @cash_out BankLogic.Schemas.Transaction.operations().cash_out
 
   @authorization_error %{"errors" => "authentication required"}
 
   setup %{conn: conn} do
-    Ecto.Adapters.SQL.Sandbox.checkout(BankLogic.Repo)
+    Sandbox.checkout(BankLogic.Repo)
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
@@ -36,21 +38,21 @@ defmodule BankApiWeb.BankingControllerTest do
         |> authenticate
         |> get(path)
 
-      response = json_response(conn, 200)["data"]
+      response = json_response(conn, 200)
 
       assert response == []
     end
 
     test "list items when there are accounts", %{conn: conn, path: path} do
-      BankLogic.open(%{email: "email01@gmail.com"})
-      BankLogic.open(%{email: "email02@gmail.com"})
+      BankLogic.open()
+      BankLogic.open()
 
       conn =
         conn
         |> authenticate
         |> get(path)
 
-      response = json_response(conn, 200)["data"]
+      response = json_response(conn, 200)
 
       assert Enum.count(response) == 2
     end
@@ -87,90 +89,13 @@ defmodule BankApiWeb.BankingControllerTest do
     end
   end
 
-  describe "/api/transfer/:source/:destination/:amount" do
+  describe "/api/balance/:number" do
     test "authorization required", %{conn: conn} do
-      path = banking_path(conn, :transfer, "email01@gmail.com", "email02@gmail.com", 10)
+      path = banking_path(conn, :balance, "16ec49e5")
 
       conn =
         conn
-        |> put(path)
-
-      response = json_response(conn, 401)
-
-      assert response == @authorization_error
-    end
-
-    test "one of the accounts does not exist", %{conn: conn} do
-      path = banking_path(conn, :transfer, "email01@gmail.com", "email02@gmail.com", 10)
-
-      conn =
-        conn
-        |> authenticate
-        |> put(path)
-
-      response = json_response(conn, 422)["errors"]
-
-      assert response == "one of the accounts does not exist"
-    end
-
-    test "accounts are equals", %{conn: conn} do
-      path = banking_path(conn, :transfer, "email01@gmail.com", "email01@gmail.com", 10)
-
-      conn =
-        conn
-        |> authenticate
-        |> put(path)
-
-      response = json_response(conn, 422)["errors"]
-
-      assert response == %{"accounts" => ["source and destination are equals"]}
-    end
-
-    test "there's no enough money", %{conn: conn} do
-      BankLogic.open(%{email: "email01@gmail.com"})
-      BankLogic.open(%{email: "email02@gmail.com"})
-
-      path = banking_path(conn, :transfer, "email01@gmail.com", "email02@gmail.com", 1001)
-
-      conn =
-        conn
-        |> authenticate
-        |> put(path)
-
-      response = json_response(conn, 422)["errors"]
-
-      assert response == "there's no enough money"
-    end
-
-    test "transfers money", %{conn: conn} do
-      BankLogic.open(%{email: "email01@gmail.com"})
-      BankLogic.open(%{email: "email02@gmail.com"})
-
-      path = banking_path(conn, :transfer, "email01@gmail.com", "email02@gmail.com", 100)
-
-      conn =
-        conn
-        |> authenticate
-        |> put(path)
-
-      response = json_response(conn, 200)
-
-      assert response == %{
-               "amount" => 100.0,
-               "destination" => "email02@gmail.com",
-               "source" => "email01@gmail.com",
-               "operation" => @transfer
-             }
-    end
-  end
-
-  describe "/api/cash_out/:source/:amount" do
-    test "authorization required", %{conn: conn} do
-      path = banking_path(conn, :cash_out, "email01@gmail.com", 10)
-
-      conn =
-        conn
-        |> put(path)
+        |> get(path)
 
       response = json_response(conn, 401)
 
@@ -178,26 +103,145 @@ defmodule BankApiWeb.BankingControllerTest do
     end
 
     test "account does not exist", %{conn: conn} do
-      path = banking_path(conn, :cash_out, "email01@gmail.com", 10)
+      path = banking_path(conn, :balance, "16ec49e5")
 
       conn =
         conn
         |> authenticate
-        |> put(path)
+        |> get(path)
+
+      response = json_response(conn, 422)["errors"]
+      assert response == "account does not exist"
+    end
+
+    test "shows account", %{conn: conn} do
+      {:ok, source} = BankLogic.open()
+
+      path = banking_path(conn, :balance, source.number)
+
+      conn =
+        conn
+        |> authenticate
+        |> get(path)
+
+      response = json_response(conn, 200)
+
+      assert response == %{
+               "amount" => "R$1.000,00",
+               "id" => response["id"],
+               "number" => source.number
+             }
+    end
+  end
+
+  describe "/api/transfer/:source/:destination/:amount" do
+    test "authorization required", %{conn: conn} do
+      path = banking_path(conn, :transfer, "16ec49e5", "17ec49e5", 10)
+
+      conn =
+        conn
+        |> post(path)
+
+      response = json_response(conn, 401)
+
+      assert response == @authorization_error
+    end
+
+    test "one of the accounts does not exist", %{conn: conn} do
+      path = banking_path(conn, :transfer, "16ec49e5", "17ec49e5", 10)
+
+      conn =
+        conn
+        |> authenticate
+        |> post(path)
+
+      response = json_response(conn, 422)["errors"]
+      assert response == "one of the accounts does not exist"
+    end
+
+    test "accounts are equals", %{conn: conn} do
+      path = banking_path(conn, :transfer, "16ec49e5", "16ec49e5", 10)
+
+      conn =
+        conn
+        |> authenticate
+        |> post(path)
+
+      response = json_response(conn, 422)["errors"]
+      assert response == %{"accounts" => ["source and destination are equals"]}
+    end
+
+    test "there's no enough money", %{conn: conn} do
+      {:ok, source} = BankLogic.open()
+      {:ok, destination} = BankLogic.open()
+
+      path = banking_path(conn, :transfer, source.number, destination.number, 100_100)
+
+      conn =
+        conn
+        |> authenticate
+        |> post(path)
+
+      response = json_response(conn, 422)["errors"]
+      assert response == "there's no enough money"
+    end
+
+    test "transfers money", %{conn: conn} do
+      {:ok, source} = BankLogic.open()
+      {:ok, destination} = BankLogic.open()
+
+      path = banking_path(conn, :transfer, source.number, destination.number, 65_00)
+
+      conn =
+        conn
+        |> authenticate
+        |> post(path)
+
+      response = json_response(conn, 200)
+
+      assert response == %{
+               "amount" => "R$65,00",
+               "destination" => destination.number,
+               "source" => source.number,
+               "operation" => @transfer
+             }
+    end
+  end
+
+  describe "/api/cash_out/:source/:amount" do
+    test "authorization required", %{conn: conn} do
+      path = banking_path(conn, :cash_out, "16ec49e5", 10)
+
+      conn =
+        conn
+        |> post(path)
+
+      response = json_response(conn, 401)
+
+      assert response == @authorization_error
+    end
+
+    test "account does not exist", %{conn: conn} do
+      path = banking_path(conn, :cash_out, "16ec49e5", 10)
+
+      conn =
+        conn
+        |> authenticate
+        |> post(path)
 
       response = json_response(conn, 422)["errors"]
       assert response == "account does not exist"
     end
 
     test "there's no enough money", %{conn: conn} do
-      BankLogic.open(%{email: "email01@gmail.com"})
+      {:ok, source} = BankLogic.open()
 
-      path = banking_path(conn, :cash_out, "email01@gmail.com", 1001)
+      path = banking_path(conn, :cash_out, source.number, 100_001)
 
       conn =
         conn
         |> authenticate
-        |> put(path)
+        |> post(path)
 
       response = json_response(conn, 422)["errors"]
 
@@ -205,20 +249,20 @@ defmodule BankApiWeb.BankingControllerTest do
     end
 
     test "cashs out", %{conn: conn} do
-      BankLogic.open(%{email: "email01@gmail.com"})
+      {:ok, source} = BankLogic.open()
 
-      path = banking_path(conn, :cash_out, "email01@gmail.com", 100)
+      path = banking_path(conn, :cash_out, source.number, 25_00)
 
       conn =
         conn
         |> authenticate
-        |> put(path)
+        |> post(path)
 
       response = json_response(conn, 200)
 
       assert response == %{
-               "amount" => 100.0,
-               "source" => "email01@gmail.com",
+               "amount" => "R$25,00",
+               "source" => source.number,
                "operation" => @cash_out
              }
     end
@@ -246,17 +290,18 @@ defmodule BankApiWeb.BankingControllerTest do
         |> get(path)
 
       response = json_response(conn, 200)
-      assert response == %{"data" => %{"report" => [], "total" => 0}}
+
+      assert response == %{"report" => [], "total" => "R$0,00"}
     end
 
     test "shows full report", %{conn: conn} do
-      BankLogic.open(%{email: "email01@gmail.com"})
-      BankLogic.open(%{email: "email02@gmail.com"})
+      {:ok, source} = BankLogic.open()
+      {:ok, destination} = BankLogic.open()
 
       data = %{
-        source: "email01@gmail.com",
-        destination: "email02@gmail.com",
-        amount: 125.50
+        source: source.number,
+        destination: destination.number,
+        amount: 12_550
       }
 
       BankLogic.transfer(data)
@@ -279,9 +324,9 @@ defmodule BankApiWeb.BankingControllerTest do
         |> authenticate
         |> get(path)
 
-      response = json_response(conn, 200)["data"]
+      response = json_response(conn, 200)
 
-      assert response["total"] == 376.50
+      assert response["total"] == "R$376,50"
       assert Enum.count(response["report"]) == 3
     end
   end

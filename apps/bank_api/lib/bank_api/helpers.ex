@@ -6,6 +6,8 @@ defmodule BankApi.Helpers do
 
   import Plug.Conn, only: [put_status: 2]
   import Phoenix.Controller, only: [render: 3, put_view: 2]
+  alias BankApiWeb.ErrorView
+  alias Ecto.Changeset
 
   def send_error(conn, code, message) when is_binary(message) do
     conn |> prepare_send_error(code) |> render("#{code}.json", %{errors: message})
@@ -17,7 +19,7 @@ defmodule BankApi.Helpers do
   end
 
   defp extract_changeset_errors(changeset) do
-    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
+    Changeset.traverse_errors(changeset, fn {msg, opts} ->
       Enum.reduce(opts, msg, fn {key, value}, acc ->
         String.replace(acc, "%{#{key}}", to_string(value))
       end)
@@ -27,6 +29,6 @@ defmodule BankApi.Helpers do
   defp prepare_send_error(conn, code) do
     conn
     |> put_status(code)
-    |> put_view(BankApiWeb.ErrorView)
+    |> put_view(ErrorView)
   end
 end

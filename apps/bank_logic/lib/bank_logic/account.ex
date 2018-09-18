@@ -7,6 +7,7 @@ defmodule BankLogic.Account do
   import Ecto.Changeset
   alias BankLogic.Repo
   alias BankLogic.Schemas.{Account, Transaction}
+  alias Ecto.{Multi, UUID}
 
   def report(attrs) do
     changeset = Transaction.report_changeset(attrs)
@@ -29,45 +30,47 @@ defmodule BankLogic.Account do
 
   def create do
     number =
-      Ecto.UUID.generate()
+      UUID.generate()
       |> String.slice(0, 8)
 
     with {:ok, account} <-
            %Account{}
            |> Account.create_changeset(%{number: number})
            |> Repo.insert() do
-      {:ok, to_money(account)}
+      {:ok, account}
     else
-      {:error, changeset} -> create()
+      {:error, _changeset} -> create()
     end
   end
 
+  def balance(%{"number" => number}), do: get_balance(number)
+  def balance(%{number: number}), do: get_balance(number)
+  def balance(_), do: get_balance("")
+
   def cash_out(attrs) do
-    changeset = Account.cash_out_changeset(attrs)
-
-    if changeset.valid? do
-      source = get_by(email: get_change(changeset, :source))
-
-      if source do
-        try_cash_out(source, get_change(changeset, :amount))
-      else
-        {:error, "account does not exist"}
-      end
+    with %Ecto.Changeset{valid?: true} = changeset <- Account.cash_out_changeset(attrs),
+         %Account{} = source <- get_by(number: get_change(changeset, :source)) do
+      try_cash_out(source, get_change(changeset, :amount))
     else
-      {:error, changeset}
+      %Ecto.Changeset{valid?: false} = changeset -> {:error, changeset}
+      _ -> {:error, "account does not exist"}
     end
+  end
+
+  defp try_cash_out(_source, %Money{amount: 0, currency: :BRL}) do
+    {:error, "You can't cash out R$0,00"}
   end
 
   defp try_cash_out(source, amount) do
-    if source.amount >= amount do
-      Ecto.Multi.new()
-      |> Ecto.Multi.update(:source, change(source, amount: source.amount - amount))
-      |> Ecto.Multi.insert(:transaction, build_transaction(source, amount))
+    if source.amount.amount >= amount.amount do
+      Multi.new()
+      |> Multi.update(:source, change(source, amount: Money.subtract(source.amount, amount)))
+      |> Multi.insert(:transaction, build_transaction(source, amount))
       |> Repo.transaction()
       |> case do
         {:ok, _} ->
           {:ok,
-           %{source: source.email, amount: amount, operation: Transaction.operations().cash_out}}
+           %{source: source.number, amount: amount, operation: Transaction.operations().cash_out}}
 
         _ ->
           {:error, "something has been wrong. please try again."}
@@ -78,35 +81,36 @@ defmodule BankLogic.Account do
   end
 
   def transfer(attrs) do
-    changeset = Account.transfer_changeset(attrs)
-
-    if changeset.valid? do
-      source = get_by(email: get_change(changeset, :source))
-      destination = get_by(email: get_change(changeset, :destination))
-
-      if source && destination do
-        try_transfer(source, destination, get_change(changeset, :amount))
-      else
-        {:error, "one of the accounts does not exist"}
-      end
+    with %Ecto.Changeset{valid?: true} = changeset <- Account.transfer_changeset(attrs),
+         %Account{} = source <- get_by(number: get_change(changeset, :source)),
+         %Account{} = destination <- get_by(number: get_change(changeset, :destination)) do
+      try_transfer(source, destination, get_change(changeset, :amount))
     else
-      {:error, changeset}
+      %Ecto.Changeset{valid?: false} = changeset -> {:error, changeset}
+      _ -> {:error, "one of the accounts does not exist"}
     end
   end
 
+  defp try_transfer(_source, _destination, %Money{amount: 0, currency: :BRL}) do
+    {:error, "You can't transfer R$0,00"}
+  end
+
   defp try_transfer(source, destination, amount) do
-    if source.amount >= amount do
-      Ecto.Multi.new()
-      |> Ecto.Multi.update(:source, change(source, amount: source.amount - amount))
-      |> Ecto.Multi.update(:destination, change(destination, amount: destination.amount + amount))
-      |> Ecto.Multi.insert(:transaction, build_transaction(source, destination, amount))
+    if source.amount.amount >= amount.amount do
+      Multi.new()
+      |> Multi.update(:source, change(source, amount: Money.subtract(source.amount, amount)))
+      |> Multi.update(
+        :destination,
+        change(destination, amount: Money.add(destination.amount, amount))
+      )
+      |> Multi.insert(:transaction, build_transaction(source, destination, amount))
       |> Repo.transaction()
       |> case do
         {:ok, _} ->
           {:ok,
            %{
-             source: source.email,
-             destination: destination.email,
+             source: source.number,
+             destination: destination.number,
              amount: amount,
              operation: Transaction.operations().transfer
            }}
@@ -153,23 +157,32 @@ defmodule BankLogic.Account do
         on: d.id == t.destination_id,
         where: t.inserted_at >= ^start_date,
         where: t.inserted_at <= ^end_date,
-        select: %{amount: t.amount, source: s.email, destination: d.email, operation: t.operation}
+        select: %{
+          amount: t.amount,
+          source: s.number,
+          destination: d.number,
+          operation: t.operation
+        }
       )
 
     transactions = Repo.all(query)
 
     total =
       transactions
-      |> Enum.reduce(0.0, fn %{amount: amount}, acc -> amount + acc end)
+      |> Enum.reduce(Money.new(0), fn %{amount: amount}, acc -> Money.add(acc, amount) end)
 
     {:ok, %{report: transactions, total: total}}
   end
 
-  defp get_by(conditions) do
-    Repo.get_by(Account, conditions)
+  defp get_balance(number) do
+    with %Account{} = account <- get_by(number: number) do
+      {:ok, account}
+    else
+      _ -> {:error, "account does not exist"}
+    end
   end
 
-  defp to_money(account) do
-    %Account{account | amount: Money.new(account.amount)}
+  defp get_by(conditions) do
+    Repo.get_by(Account, conditions)
   end
 end

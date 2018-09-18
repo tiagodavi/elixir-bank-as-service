@@ -13,6 +13,10 @@ defmodule BankLogic do
     Account.create()
   end
 
+  def balance(attrs) do
+    Account.balance(attrs)
+  end
+
   def report(attrs) do
     Account.report(attrs)
   end
