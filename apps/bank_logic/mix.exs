@@ -28,7 +28,8 @@ defmodule BankLogic.MixProject do
   defp deps do
     [
       {:ecto, "~> 2.2"},
-      {:postgrex, ">= 0.0.0"}
+      {:postgrex, ">= 0.0.0"},
+      {:money, "~> 1.2.1"}
     ]
   end
 end
