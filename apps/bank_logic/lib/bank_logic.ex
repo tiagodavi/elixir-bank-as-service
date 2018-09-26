@@ -65,9 +65,8 @@ defmodule BankLogic do
      updated_at: ~N[2018-09-19 00:06:49.530577]
    }}
   """
-  @spec balance(%{source: String.t(), amount: integer()}) ::
+  @spec balance(%{number: String.t()}) ::
           {:ok, map()}
-          | {:error, map()}
           | {:error, String.t()}
   def balance(attrs) do
     Account.balance(attrs)
@@ -106,6 +105,39 @@ defmodule BankLogic do
   @spec report(%{start_date: String.t(), end_date: String.t()}) :: {:ok, map()}
   def report(attrs) do
     Account.report(attrs)
+  end
+
+  @doc """
+  Returns account's statement
+
+  ## Parameters
+  - number: Account's number
+
+  ## Examples
+  iex> BankLogic.statement(%{number: "1282ccff"})
+
+  {:ok,
+  [
+   %{
+     amount: %Money{amount: 10000, currency: :BRL},
+     balance: %Money{amount: 90000, currency: :BRL},
+     operation: "transfer"
+   },
+   %{
+     amount: %Money{amount: 10000, currency: :BRL},
+     balance: %Money{amount: 80000, currency: :BRL},
+     operation: "transfer"
+   },
+   %{
+     amount: %Money{amount: 10000, currency: :BRL},
+     balance: %Money{amount: 70000, currency: :BRL},
+     operation: "cash out"
+   }
+  ]}
+  """
+  @spec statement(%{number: String.t()}) :: {:ok, []} | {:error, String.t()}
+  def statement(attrs) do
+    Account.statement(attrs)
   end
 
   @doc """

@@ -47,6 +47,10 @@ defmodule BankLogic.Account do
   def balance(%{number: number}), do: get_balance(number)
   def balance(_), do: get_balance("")
 
+  def statement(%{"number" => number}), do: get_statement(number)
+  def statement(%{number: number}), do: get_statement(number)
+  def statement(_), do: get_statement("")
+
   def cash_out(attrs) do
     with %Ecto.Changeset{valid?: true} = changeset <- Account.cash_out_changeset(attrs),
          %Account{} = source <- get_by(number: get_change(changeset, :source)) do
@@ -174,9 +178,58 @@ defmodule BankLogic.Account do
     {:ok, %{report: transactions, total: total}}
   end
 
+  defp build_statement(%Account{} = account) do
+    query =
+      from(t in Transaction,
+        left_join: s in Account,
+        on: s.id == t.source_id,
+        where: s.number == ^account.number,
+        select: %{
+          amount: t.amount,
+          operation: t.operation
+        },
+        order_by: [asc: t.id]
+      )
+
+    transactions = Repo.all(query)
+    labels = Transaction.labels()
+
+    total =
+      transactions
+      |> Enum.reduce(Money.new(0), fn %{amount: amount}, acc -> Money.add(acc, amount) end)
+
+    statement =
+      transactions
+      |> Enum.reduce(
+        %{amount: Money.add(account.amount, total), transactions: []},
+        fn transaction, acc ->
+          result = %{
+            amount: transaction.amount,
+            operation: labels[transaction.operation],
+            balance: Money.subtract(acc.amount, transaction.amount)
+          }
+
+          Map.merge(acc, %{
+            amount: result.balance,
+            transactions: [result | acc.transactions]
+          })
+        end
+      )
+
+    {:ok, Enum.reverse(statement.transactions)}
+  end
+
   defp get_balance(number) do
     with %Account{} = account <- get_by(number: number) do
       {:ok, account}
+    else
+      _ -> {:error, "account does not exist"}
+    end
+  end
+
+  defp get_statement(number) do
+    with %Account{} = account <- get_by(number: number) do
+      build_statement(account)
     else
       _ -> {:error, "account does not exist"}
     end

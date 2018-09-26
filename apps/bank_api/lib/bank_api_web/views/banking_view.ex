@@ -19,6 +19,16 @@ defmodule BankApiWeb.BankingView do
     }
   end
 
+  def render("statements.json", %{statements: statements}) do
+    Enum.map(statements, fn s ->
+      %{
+        amount: to_string(s.amount),
+        balance: to_string(s.balance),
+        operation: s.operation
+      }
+    end)
+  end
+
   def render("transaction.json", %{transaction: transaction}) do
     data = %{
       operation: transaction.operation,

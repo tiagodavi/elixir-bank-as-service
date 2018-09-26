@@ -134,6 +134,54 @@ defmodule BankApiWeb.BankingControllerTest do
     end
   end
 
+  describe "/api/statement/:number" do
+    test "authorization required", %{conn: conn} do
+      path = banking_path(conn, :statement, "16ec49e5")
+
+      conn =
+        conn
+        |> get(path)
+
+      response = json_response(conn, 401)
+
+      assert response == @authorization_error
+    end
+
+    test "account does not exist", %{conn: conn} do
+      path = banking_path(conn, :statement, "16ec49e5")
+
+      conn =
+        conn
+        |> authenticate
+        |> get(path)
+
+      response = json_response(conn, 422)["errors"]
+      assert response == "account does not exist"
+    end
+
+    test "shows statements", %{conn: conn} do
+      {:ok, source} = BankLogic.open()
+
+      data = %{
+        source: source.number,
+        amount: 12_931
+      }
+
+      BankLogic.cash_out(data)
+
+      path = banking_path(conn, :statement, source.number)
+
+      conn =
+        conn
+        |> authenticate
+        |> get(path)
+
+      response = json_response(conn, 200)
+
+      assert Enum.count(response) === 1
+    end
+  end
+
   describe "/api/transfer/:source/:destination/:amount" do
     test "authorization required", %{conn: conn} do
       path = banking_path(conn, :transfer, "16ec49e5", "17ec49e5", 10)

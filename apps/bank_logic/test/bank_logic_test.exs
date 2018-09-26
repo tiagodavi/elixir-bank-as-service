@@ -202,4 +202,32 @@ defmodule BankLogicTest do
       assert Enum.count(transactions.report) == 3
     end
   end
+
+  describe ".statement" do
+    test "returns all account statements" do
+      {:ok, source} = BankLogic.open()
+      {:ok, destination} = BankLogic.open()
+
+      data = %{
+        source: source.number,
+        destination: destination.number,
+        amount: 10_000
+      }
+
+      assert {:ok, _} = BankLogic.transfer(data)
+      assert {:ok, _} = BankLogic.transfer(data)
+      assert {:ok, _} = BankLogic.cash_out(data)
+
+      assert {:ok, statements} = BankLogic.statement(%{number: source.number})
+
+      first = Enum.at(statements, 0)
+      second = Enum.at(statements, 1)
+      third = Enum.at(statements, 2)
+
+      assert first.balance === %Money{amount: 90_000, currency: :BRL}
+      assert second.balance === %Money{amount: 80_000, currency: :BRL}
+      assert third.balance === %Money{amount: 70_000, currency: :BRL}
+      assert Enum.count(statements) == 3
+    end
+  end
 end

@@ -31,6 +31,12 @@ defmodule BankApiWeb.BankingController do
     end
   end
 
+  def statement(conn, params) do
+    with {:ok, statements} <- BankLogic.statement(params) do
+      render(conn, "statements.json", %{statements: statements})
+    end
+  end
+
   def transfer(conn, params) do
     with {:ok, transaction} <- BankLogic.transfer(amount_to_integer(params)) do
       render(conn, "transaction.json", %{transaction: transaction})

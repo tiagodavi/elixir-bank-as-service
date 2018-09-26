@@ -32,6 +32,34 @@
      {"errors": "msg"}
     ```
 
+* **[Get account statements]**
+
+  /api/statement/:number - Return account's statements
+
+* **Method:**
+
+  `GET`
+
+* **Success Response:**
+
+  * **Code:** 200 OK <br />
+    **Content:**
+    ```
+      [%{"amount" => "R$129,31", "balance" => "R$870,69", "operation" => "cash out"}]
+    ```
+
+* **Error Response:**
+
+  * **Code:** 422 Bad Request <br />
+    **Content:**
+    ```
+     {"errors": "msg"}
+    ```
+
+* **Example Usage:**
+
+  GET -> `/api/statement/16ec49e5`
+
 * **[Get account balance]**
 
   /api/balance/:number - Return account balance

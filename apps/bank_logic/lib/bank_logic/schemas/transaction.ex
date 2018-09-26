@@ -8,6 +8,11 @@ defmodule BankLogic.Schemas.Transaction do
     cash_out: 2
   }
 
+  @labels %{
+    1 => "transfer",
+    2 => "cash out"
+  }
+
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -41,4 +46,5 @@ defmodule BankLogic.Schemas.Transaction do
   end
 
   def operations, do: @operations
+  def labels, do: @labels
 end
